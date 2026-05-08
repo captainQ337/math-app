@@ -13,13 +13,22 @@
     
     /* 🌟 로고 크기를 강제로 큼직하게 고정합니다 */
     .header img { 
-      width: 90% !important;   /* 화면 너비의 90%까지 크게 */
-      max-width: 400px !important; 
-      height: auto !important; 
-      margin: 30px auto !important; 
-      display: block !important; 
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); 
-    }
+  /* 🌟 깨짐을 방지하기 위해 너비를 80%로 살짝 줄이고 고정합니다 */
+  width: 80% !important; 
+  max-width: 320px !important; /* 최대 크기도 살짝 제한 */
+  height: auto !important; 
+  
+  /* 위아래 여백을 넉넉히 주어 로고가 돋보이게 합니다 */
+  margin: 30px auto !important; 
+  display: block !important; 
+  
+  /* 로고가 그림자 때문에 더 선명해 보이게 만드는 가벼운 효과 */
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1)); 
+  
+  /* 🌟 일부 브라우저에서 이미지 크기를 줄일 때 선명하게 만드는 기술 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
 
     /* 글씨 스타일은 혹시 몰라 남겨두지만, 아래 HTML에서 태그를 지웠으므로 나오지 않습니다 */
     .header h1 { display: none !important; } 
