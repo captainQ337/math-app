@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>최강수학</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1Wnevb3omIyUQCeZOrKw6s4UzGMWNdktT&sz=800">
+  <style>
+    :root { --primary-color: #2D5A27; --bg-cream: #FDFCF8; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
+    .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+    .header img { width: 150px; margin-bottom: 10px; display: block; margin: 0 auto; }
+    .header h1 { color: #2D5A27; font-size: 22px; margin-top: 10px; }
+    input { width: 100%; padding: 15px; margin-top: 20px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+    button { width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    #msg { margin-top: 15px; font-size: 14px; color: #666; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800" alt="로고">
+      <h1>책나무최강수학</h1>
+    </div>
+    
+    <div id="login-screen">
+      <input type="text" id="stuId" placeholder="학생 번호를 입력하세요">
+      <button onclick="doLogin()">로그인</button>
+      <p id="msg"></p>
+    </div>
+
+    <div id="main-content" class="hidden">
+       </div>
+  </div>
+
+  <script>
+    /* 🚨 1단계: 원장님의 구글 배포 주소를 아래에 꼭 넣어주세요 */
+    const API_URL = "https://script.google.com/macros/s/AKfycbxBzaPe-pssVRUKW_Du6Bwq_gBM7twL578JXVostXREOT9fDdNRdm-J5Q58bmzPhHZC/exec";
+
+    /* 🚨 2단계: 핵심 통신 함수 (배너를 우회하는 마법의 코드) */
+    async function callGoogleScript(funcName, ...args) {
+      try {
+        const response = await fetch(`${API_URL}?func=${funcName}`, {
+          method: 'POST',
+          body: JSON.stringify(args)
+        });
+        return await response.json();
+      } catch (e) {
+        console.error(e);
+        return { success: false, message: "서버 연결에 실패했습니다." };
+      }
+    }
+
+    /* 로그인 처리 */
+    async function doLogin() {
+      const idInput = document.getElementById('stuId');
+      const msg = document.getElementById('msg');
+      const id = idInput.value.trim().toUpperCase();
+
+      if(!id) {
+        msg.innerText = "번호를 입력해주세요.";
+        return;
+      }
+
+      msg.innerText = "잠시만 기다려주세요...";
+      
+      // 원장님 시트의 authenticateAndGetData 함수를 호출합니다.
+      const result = await callGoogleScript("authenticateAndGetData", id);
+
+      if(result.success) {
+        msg.style.color = "green";
+        msg.innerText = result.student.name + "님 확인되었습니다!";
+        // 여기에 다음 화면으로 넘어가는 코드를 넣으면 됩니다.
+      } else {
+        msg.style.color = "red";
+        msg.innerText = "학생 정보를 찾을 수 없습니다.";
+      }
+    }
+  </script>
+</body>
+</html>
