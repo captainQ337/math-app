@@ -10,15 +10,20 @@
     :root { --primary-color: #2D5A27; --bg-cream: #FDFCF8; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
     .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+    
+    /* 🌟 로고 크기를 강제로 큼직하게 고정합니다 */
     .header img { 
-  width: 85%;      /* 👈 화면 너비의 85%까지 꽉 차게 키웁니다 */
-  max-width: 350px; /* 👈 너무 커지지 않도록 최대치 제한 */
-  height: auto; 
-  margin: 20px auto; /* 👈 위아래 여유 공간을 줍니다 */
-  display: block; 
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1)); 
-}
-    .header h1 { color: #2D5A27; font-size: 22px; margin-top: 10px; }
+      width: 90% !important;   /* 화면 너비의 90%까지 크게 */
+      max-width: 400px !important; 
+      height: auto !important; 
+      margin: 30px auto !important; 
+      display: block !important; 
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15)); 
+    }
+
+    /* 글씨 스타일은 혹시 몰라 남겨두지만, 아래 HTML에서 태그를 지웠으므로 나오지 않습니다 */
+    .header h1 { display: none !important; } 
+
     input { width: 100%; padding: 15px; margin-top: 20px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
     button { width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
     #msg { margin-top: 15px; font-size: 14px; color: #666; }
@@ -27,9 +32,9 @@
 </head>
 <body>
   <div class="app-container">
-   <div class="header">
-  <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800" alt="로고">
-</div>
+    <div class="header">
+      <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800&v=1" alt="로고">
+    </div>
     
     <div id="login-screen">
       <input type="text" id="stuId" placeholder="학생 번호를 입력하세요">
@@ -37,15 +42,12 @@
       <p id="msg"></p>
     </div>
 
-    <div id="main-content" class="hidden">
-       </div>
+    <div id="main-content" class="hidden"></div>
   </div>
 
   <script>
-    /* 🚨 1단계: 원장님의 구글 배포 주소를 아래에 꼭 넣어주세요 */
     const API_URL = "https://script.google.com/macros/s/AKfycbxBzaPe-pssVRUKW_Du6Bwq_gBM7twL578JXVostXREOT9fDdNRdm-J5Q58bmzPhHZC/exec";
 
-    /* 🚨 2단계: 핵심 통신 함수 (배너를 우회하는 마법의 코드) */
     async function callGoogleScript(funcName, ...args) {
       try {
         const response = await fetch(`${API_URL}?func=${funcName}`, {
@@ -59,7 +61,6 @@
       }
     }
 
-    /* 로그인 처리 */
     async function doLogin() {
       const idInput = document.getElementById('stuId');
       const msg = document.getElementById('msg');
@@ -71,14 +72,11 @@
       }
 
       msg.innerText = "잠시만 기다려주세요...";
-      
-      // 원장님 시트의 authenticateAndGetData 함수를 호출합니다.
       const result = await callGoogleScript("authenticateAndGetData", id);
 
       if(result.success) {
         msg.style.color = "green";
         msg.innerText = result.student.name + "님 확인되었습니다!";
-        // 여기에 다음 화면으로 넘어가는 코드를 넣으면 됩니다.
       } else {
         msg.style.color = "red";
         msg.innerText = "학생 정보를 찾을 수 없습니다.";
