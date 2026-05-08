@@ -10,7 +10,14 @@
     :root { --primary-color: #2D5A27; --bg-cream: #FDFCF8; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
     .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
-    .header img { width: 150px; margin-bottom: 10px; display: block; margin: 0 auto; }
+    .header img { 
+  width: 85%;      /* 👈 화면 너비의 85%까지 꽉 차게 키웁니다 */
+  max-width: 350px; /* 👈 너무 커지지 않도록 최대치 제한 */
+  height: auto; 
+  margin: 20px auto; /* 👈 위아래 여유 공간을 줍니다 */
+  display: block; 
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1)); 
+}
     .header h1 { color: #2D5A27; font-size: 22px; margin-top: 10px; }
     input { width: 100%; padding: 15px; margin-top: 20px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
     button { width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
@@ -20,10 +27,9 @@
 </head>
 <body>
   <div class="app-container">
-    <div class="header">
-      <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800" alt="로고">
-      <h1>책나무최강수학</h1>
-    </div>
+   <div class="header">
+  <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800" alt="로고">
+</div>
     
     <div id="login-screen">
       <input type="text" id="stuId" placeholder="학생 번호를 입력하세요">
