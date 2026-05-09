@@ -5,41 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>책나무최강</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1g-S1lNyNJZ_zJcILyrRp9Q08Y8eua4SA&sz=1000">
-<meta name="apple-mobile-web-app-status-bar-style" content="#24a645">
-<meta name="theme-color" content="#24a645">
+  <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1g-S1lNyNJZ_zJcILyrRp9Q08Y8eua4SA&sz=1000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#24a645">
+  <meta name="theme-color" content="#24a645">
 
   <style>
     :root { --primary-color: #2D5A27; --bg-cream: #FDFCF8; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
     .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
     
-    /* 🌟 로고 크기를 강제로 큼직하게 고정합니다 */
     .header img { 
-  /* 🌟 깨짐을 방지하기 위해 너비를 80%로 살짝 줄이고 고정합니다 */
-  width: 80% !important; 
-  max-width: 320px !important; /* 최대 크기도 살짝 제한 */
-  height: auto !important; 
-  
-  /* 위아래 여백을 넉넉히 주어 로고가 돋보이게 합니다 */
-  margin: 30px auto !important; 
-  display: block !important; 
-  
-  /* 로고가 그림자 때문에 더 선명해 보이게 만드는 가벼운 효과 */
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1)); 
-  
-  /* 🌟 일부 브라우저에서 이미지 크기를 줄일 때 선명하게 만드는 기술 */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-    /* 글씨 스타일은 혹시 몰라 남겨두지만, 아래 HTML에서 태그를 지웠으므로 나오지 않습니다 */
-    .header h1 { display: none !important; } 
+      width: 80% !important; 
+      max-width: 320px !important;
+      height: auto !important; 
+      margin: 30px auto !important; 
+      display: block !important; 
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1)); 
+      image-rendering: -webkit-optimize-contrast;
+    }
 
     input { width: 100%; padding: 15px; margin-top: 20px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
     button { width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
     #msg { margin-top: 15px; font-size: 14px; color: #666; }
     .hidden { display: none; }
+
+    /* 표 스타일 추가 */
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; font-size: 14px; }
+    th { background: #f4f4f4; padding: 12px 8px; border-bottom: 2px solid #eee; }
+    td { padding: 12px 8px; border-bottom: 1px solid #eee; }
+    .bt-badge { color: #e74c3c; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -58,82 +52,102 @@
   </div>
 
   <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxwQKed0Wxk_8AIady2i4X9TkLnJB-QobPCH5z2bHFHM-56WQ5b2RhMON8x102dwXNq/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxwQKed0Wxk_8AIady2i4X9TkLnJB-QobPCH5z2bHFHM-56WQ5b2RhMON8x102dwXNq/exec";
 
-  async function callGoogleScript(funcName, ...args) {
-    try {
-      const response = await fetch(`${API_URL}?func=${funcName}`, {
-        method: 'POST',
-        body: JSON.stringify(args)
-      });
-      return await response.json();
-    } catch (e) {
-      console.error(e);
-      return { success: false, message: "서버 연결에 실패했습니다." };
-    }
-  }
-
-  async function doLogin() {
-    const idInput = document.getElementById('stuId');
-    const msg = document.getElementById('msg');
-    const id = idInput.value.trim().toUpperCase();
-
-    if(!id) {
-      msg.innerText = "번호를 입력해주세요.";
-      return;
-    }
-
-    msg.innerText = "잠시만 기다려주세요...";
-    
-    try {
-      const result = await callGoogleScript("authenticateAndGetData", id);
-
-      if(result.success) {
-        msg.style.color = "green";
-        
-        // 🌟 1. 관리자로 로그인했을 때
-        if(id === "ADMIN1234") {
-          msg.innerText = "원장님 확인되었습니다! 학생 리스트를 불러옵니다.";
-          // 관리자 화면으로 전환하는 함수 호출 (나중에 리스트 보여줄 곳)
-          showAdminView(result.studentList);
-        } 
-        // 🌟 2. 일반 학생으로 로그인했을 때
-        else {
-          msg.innerText = result.student.name + "님 확인되었습니다!";
-          // 학생 대시보드로 전환
-          showStudentView(result.student);
-        }
-      } else {
-        msg.style.color = "red";
-        msg.innerText = result.message || "정보를 찾을 수 없습니다.";
+    async function callGoogleScript(funcName, ...args) {
+      try {
+        const response = await fetch(`${API_URL}?func=${funcName}`, {
+          method: 'POST',
+          body: JSON.stringify(args)
+        });
+        return await response.json();
+      } catch (e) {
+        console.error(e);
+        return { success: false, message: "서버 연결에 실패했습니다." };
       }
-    } catch (err) {
-      msg.innerText = "연결 중 오류가 발생했습니다.";
     }
-  }
 
-  // 관리자용 화면을 구성하는 임시 함수
-  function showAdminView(list) {
-    const main = document.getElementById('main-content');
-    const login = document.getElementById('login-screen');
-    
-    login.classList.add('hidden');
-    main.classList.remove('hidden');
-    
-    main.innerHTML = `<h3>학생 관리 리스트 (${list.length}명)</h3>`;
-    // 여기에 학생 리스트를 표 형태로 뿌려주는 코드를 추가하면 됩니다.
-  }
+    async function doLogin() {
+      const idInput = document.getElementById('stuId');
+      const msg = document.getElementById('msg');
+      const id = idInput.value.trim().toUpperCase();
 
-  // 학생용 화면을 구성하는 임시 함수
-  function showStudentView(student) {
-    const main = document.getElementById('main-content');
-    const login = document.getElementById('login-screen');
-    
-    login.classList.add('hidden');
-    main.classList.remove('hidden');
-    
-    main.innerHTML = `<h3>${student.name}님, 열공하세요!</h3>`;
-  }
-</script>
+      if(!id) {
+        msg.innerText = "번호를 입력해주세요.";
+        return;
+      }
+
+      msg.innerText = "잠시만 기다려주세요...";
+      
+      try {
+        const result = await callGoogleScript("authenticateAndGetData", id);
+
+        if(result.success) {
+          msg.style.color = "green";
+          if(id === "ADMIN1234") {
+            showAdminView(result.studentList);
+          } else {
+            showStudentView(result.student);
+          }
+        } else {
+          msg.style.color = "red";
+          msg.innerText = result.message || "정보를 찾을 수 없습니다.";
+        }
+      } catch (err) {
+        msg.innerText = "연결 중 오류가 발생했습니다.";
+      }
+    }
+
+    function showAdminView(list) {
+      const main = document.getElementById('main-content');
+      const login = document.getElementById('login-screen');
+      login.classList.add('hidden');
+      main.classList.remove('hidden');
+      
+      let tableHtml = `
+        <h3 style="margin-bottom:15px;">👨‍🏫 학생 관리 리스트 (${list.length}명)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>이름</th>
+              <th>책나무</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      list.forEach(stu => {
+        const btStatus = stu.isBT ? '<span class="bt-badge">Y</span>' : '-';
+        tableHtml += `
+          <tr>
+            <td>${stu.id}</td>
+            <td><strong>${stu.name}</strong></td>
+            <td>${btStatus}</td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `</tbody></table>
+      <button onclick="location.reload()" style="margin-top:20px; background:#666;">로그아웃</button>`;
+      
+      main.innerHTML = tableHtml;
+    }
+
+    function showStudentView(student) {
+      const main = document.getElementById('main-content');
+      const login = document.getElementById('login-screen');
+      login.classList.add('hidden');
+      main.classList.remove('hidden');
+      
+      main.innerHTML = `
+        <div style="padding:20px; background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+          <h2 style="color:var(--primary-color);">${student.name}님 반가워요!</h2>
+          <p style="margin:20px 0; font-size:18px;">오늘도 최강수학에서 열공해봐요! 🔥</p>
+          <button onclick="location.reload()" style="background:#666;">로그아웃</button>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
