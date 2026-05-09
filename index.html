@@ -58,42 +58,82 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxwQKed0Wxk_8AIady2i4X9TkLnJB-QobPCH5z2bHFHM-56WQ5b2RhMON8x102dwXNq/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbxwQKed0Wxk_8AIady2i4X9TkLnJB-QobPCH5z2bHFHM-56WQ5b2RhMON8x102dwXNq/exec";
 
-    async function callGoogleScript(funcName, ...args) {
-      try {
-        const response = await fetch(`${API_URL}?func=${funcName}`, {
-          method: 'POST',
-          body: JSON.stringify(args)
-        });
-        return await response.json();
-      } catch (e) {
-        console.error(e);
-        return { success: false, message: "서버 연결에 실패했습니다." };
-      }
+  async function callGoogleScript(funcName, ...args) {
+    try {
+      const response = await fetch(`${API_URL}?func=${funcName}`, {
+        method: 'POST',
+        body: JSON.stringify(args)
+      });
+      return await response.json();
+    } catch (e) {
+      console.error(e);
+      return { success: false, message: "서버 연결에 실패했습니다." };
+    }
+  }
+
+  async function doLogin() {
+    const idInput = document.getElementById('stuId');
+    const msg = document.getElementById('msg');
+    const id = idInput.value.trim().toUpperCase();
+
+    if(!id) {
+      msg.innerText = "번호를 입력해주세요.";
+      return;
     }
 
-    async function doLogin() {
-      const idInput = document.getElementById('stuId');
-      const msg = document.getElementById('msg');
-      const id = idInput.value.trim().toUpperCase();
-
-      if(!id) {
-        msg.innerText = "번호를 입력해주세요.";
-        return;
-      }
-
-      msg.innerText = "잠시만 기다려주세요...";
+    msg.innerText = "잠시만 기다려주세요...";
+    
+    try {
       const result = await callGoogleScript("authenticateAndGetData", id);
 
       if(result.success) {
         msg.style.color = "green";
-        msg.innerText = result.student.name + "님 확인되었습니다!";
+        
+        // 🌟 1. 관리자로 로그인했을 때
+        if(id === "ADMIN1234") {
+          msg.innerText = "원장님 확인되었습니다! 학생 리스트를 불러옵니다.";
+          // 관리자 화면으로 전환하는 함수 호출 (나중에 리스트 보여줄 곳)
+          showAdminView(result.studentList);
+        } 
+        // 🌟 2. 일반 학생으로 로그인했을 때
+        else {
+          msg.innerText = result.student.name + "님 확인되었습니다!";
+          // 학생 대시보드로 전환
+          showStudentView(result.student);
+        }
       } else {
         msg.style.color = "red";
-        msg.innerText = "학생 정보를 찾을 수 없습니다.";
+        msg.innerText = result.message || "정보를 찾을 수 없습니다.";
       }
+    } catch (err) {
+      msg.innerText = "연결 중 오류가 발생했습니다.";
     }
-  </script>
+  }
+
+  // 관리자용 화면을 구성하는 임시 함수
+  function showAdminView(list) {
+    const main = document.getElementById('main-content');
+    const login = document.getElementById('login-screen');
+    
+    login.classList.add('hidden');
+    main.classList.remove('hidden');
+    
+    main.innerHTML = `<h3>학생 관리 리스트 (${list.length}명)</h3>`;
+    // 여기에 학생 리스트를 표 형태로 뿌려주는 코드를 추가하면 됩니다.
+  }
+
+  // 학생용 화면을 구성하는 임시 함수
+  function showStudentView(student) {
+    const main = document.getElementById('main-content');
+    const login = document.getElementById('login-screen');
+    
+    login.classList.add('hidden');
+    main.classList.remove('hidden');
+    
+    main.innerHTML = `<h3>${student.name}님, 열공하세요!</h3>`;
+  }
+</script>
 </body>
 </html>
