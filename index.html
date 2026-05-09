@@ -10,7 +10,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="책나무최강">
 
-  <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1Wnevb3omIyUQCeZOrKw6s4UzGMWNdktT">
+  <!-- 🌟 앱 아이콘 (바탕화면 아이콘) 정상 반영 -->
+  <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1g-S1lNyNJZ_zJcILyrRp9Q08Y8eua4SA&sz=512">
+  
   <style>
     :root { --primary-color: #2D5A27; --accent-color: #4CAF50; --bg-cream: #FDFCF8; --text-dark: #1A1A1A; --status-done: #800080; --status-ing: #2D5A27; --status-need: #FFB300; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; color: var(--text-dark); margin: 0; padding: 0; display: flex; justify-content: center; }
@@ -72,7 +74,8 @@
 <body>
 <div class="app-container">
 <div class="header">
-  <img src="https://drive.google.com/thumbnail?id=1g-S1lNyNJZ_zJcILyrRp9Q08Y8eua4SA&sz=800&v=2" alt="로고">
+  <!-- 🌟 메인 로고 (가로형 예전 로고) 정상 반영 -->
+  <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800&v=1" alt="로고">
   <h1 id="academyNameDisplay" style="display:none;">책나무최강수학</h1>
 </div>
 
@@ -244,14 +247,12 @@
 
   // 🌟 클릭 시 반응하도록 수정한 학생 데이터 불러오기 함수
   async function fetchStudentData(id) {
-     // 1. 클릭하자마자 로딩 화면 띄우기
      const listDiv = document.getElementById('student-list');
      listDiv.innerHTML = `<div style="padding:50px 0; text-align:center; color:var(--primary-color);">
        <h3 style="margin-bottom:10px;">⏳ ${id} 학생 기록을 불러오는 중...</h3>
        <p style="font-size:13px; color:#666;">잠시만 기다려주세요 (최대 3~5초 소요)</p>
      </div>`;
      
-     // 2. 구글 스크립트에 데이터 요청
      const res = await callGoogleScript("authenticateAndGetData", id);
      
      if (res.success) {
@@ -259,10 +260,10 @@
          if(fs && res.student) res.student.phone = fs.phone;
          setStudentData(res);
          document.getElementById('btn-back-to-list').classList.remove('hidden');
-         renderAdminList(); // 나중을 위해 리스트 원상복구
+         renderAdminList(); 
      } else {
          alert("오류가 발생했습니다: " + (res.message || "데이터 확인 필요"));
-         renderAdminList(); // 에러 시 리스트 원상복구
+         renderAdminList(); 
      }
   }
 
