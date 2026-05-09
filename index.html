@@ -51,9 +51,21 @@
     <div id="main-content" class="hidden"></div>
   </div>
 
-  <script>
+<script>
+    // 🌟 우리가 새롭게 만든 튼튼한 연결 주소! (수정 금지)
     const API_URL = "https://script.google.com/macros/s/AKfycbxwQKed0Wxk_8AIady2i4X9TkLnJB-QobPCH5z2bHFHM-56WQ5b2RhMON8x102dwXNq/exec";
 
+    var currentRole, myStudent, myHistory, todayStr, globalToc1, globalToc2;
+    var currentCalYear = 2026, currentCalMonth = 5, selectedDateStr, currentDailyPhoto, currentBTPhoto;
+    var colorMap = { 'none': '#FFFFFF', 'done': '#800080', 'ing': '#2D5A27', 'need': '#FFB300' };
+    var academyHolidays = ["2026-01-01", "2026-02-16", "2026-02-17", "2026-02-18", "2026-05-05", "2026-05-25", "2026-08-17", "2026-09-24", "2026-09-25", "2026-09-26", "2026-12-25"];
+
+    function showPage(pageId) {
+      ['login-screen', 'admin-screen', 'calendar-screen', 'main-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    // 🌟 서버 통신 함수 (가장 중요한 부분!)
     async function callGoogleScript(funcName, ...args) {
       try {
         const response = await fetch(`${API_URL}?func=${funcName}`, {
@@ -67,9 +79,10 @@
       }
     }
 
+    // 🌟 로그인 함수 (관리자와 학생 분기 처리)
     async function doLogin() {
-      const idInput = document.getElementById('stuId');
-      const msg = document.getElementById('msg');
+      const idInput = document.getElementById('studentId');
+      const msg = document.getElementById('login-msg');
       const id = idInput.value.trim().toUpperCase();
 
       if(!id) {
@@ -79,75 +92,222 @@
 
       msg.innerText = "잠시만 기다려주세요...";
       
-      try {
-        const result = await callGoogleScript("authenticateAndGetData", id);
+      const res = await callGoogleScript("authenticateAndGetData", id);
 
-        if(result.success) {
-          msg.style.color = "green";
-          if(id === "ADMIN1234") {
-            showAdminView(result.studentList);
-          } else {
-            showStudentView(result.student);
-          }
+      if(res.success) {
+        msg.style.color = "green";
+        currentRole = res.role;
+        
+        if(res.role === 'admin') {
+          msg.innerText = "원장님 확인되었습니다!";
+          window.adminStudentList = res.studentList; // 서버에서 studentList로 보냄
+          renderAdminList();
+          showPage('admin-screen');
         } else {
-          msg.style.color = "red";
-          msg.innerText = result.message || "정보를 찾을 수 없습니다.";
+          msg.innerText = res.student.name + "님 확인되었습니다!";
+          setStudentData(res); 
         }
-      } catch (err) {
-        msg.innerText = "연결 중 오류가 발생했습니다.";
+      } else {
+        msg.style.color = "red";
+        msg.innerText = res.message || "정보를 찾을 수 없습니다.";
       }
     }
 
-    function showAdminView(list) {
-      const main = document.getElementById('main-content');
-      const login = document.getElementById('login-screen');
-      login.classList.add('hidden');
-      main.classList.remove('hidden');
-      
+    // 🌟 관리자 리스트 출력 (원장님이 원하셨던 '최강수학', '책나무' Y/N 표시 적용)
+    function renderAdminList() {
       let tableHtml = `
-        <h3 style="margin-bottom:15px;">👨‍🏫 학생 관리 리스트 (${list.length}명)</h3>
-        <table>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; font-size: 14px;">
           <thead>
-            <tr>
-              <th>번호</th>
-              <th>이름</th>
-              <th>책나무</th>
+            <tr style="background: #f4f4f4; border-bottom: 2px solid #eee;">
+              <th style="padding: 12px 8px;">번호</th>
+              <th style="padding: 12px 8px;">이름</th>
+              <th style="padding: 12px 8px;">최강수학</th>
+              <th style="padding: 12px 8px;">책나무</th>
             </tr>
           </thead>
           <tbody>
       `;
 
-      list.forEach(stu => {
-        const btStatus = stu.isBT ? '<span class="bt-badge">Y</span>' : '-';
+      window.adminStudentList.forEach(stu => {
+        const mathStatus = stu.isMath ? '<span style="color:#2D5A27; font-weight:bold;">Y</span>' : '-';
+        const btStatus = stu.isBT ? '<span style="color:#e74c3c; font-weight:bold;">Y</span>' : '-';
+        
         tableHtml += `
-          <tr>
-            <td>${stu.id}</td>
-            <td><strong>${stu.name}</strong></td>
-            <td>${btStatus}</td>
+          <tr style="border-bottom: 1px solid #eee; cursor: pointer;" onclick="fetchStudentData('${stu.id}')">
+            <td style="padding: 12px 8px;">${stu.id}</td>
+            <td style="padding: 12px 8px;"><strong>${stu.name}</strong></td>
+            <td style="padding: 12px 8px;">${mathStatus}</td>
+            <td style="padding: 12px 8px;">${btStatus}</td>
           </tr>
         `;
       });
 
-      tableHtml += `</tbody></table>
-      <button onclick="location.reload()" style="margin-top:20px; background:#666;">로그아웃</button>`;
-      
-      main.innerHTML = tableHtml;
+      tableHtml += `</tbody></table>`;
+      document.getElementById('student-list').innerHTML = tableHtml;
     }
 
-    function showStudentView(student) {
-      const main = document.getElementById('main-content');
-      const login = document.getElementById('login-screen');
-      login.classList.add('hidden');
-      main.classList.remove('hidden');
-      
-      main.innerHTML = `
-        <div style="padding:20px; background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-          <h2 style="color:var(--primary-color);">${student.name}님 반가워요!</h2>
-          <p style="margin:20px 0; font-size:18px;">오늘도 최강수학에서 열공해봐요! 🔥</p>
-          <button onclick="location.reload()" style="background:#666;">로그아웃</button>
-        </div>
-      `;
+    // 학생 데이터 불러오기 (클릭 시 실행)
+    async function fetchStudentData(id) {
+       document.getElementById('login-msg').innerText = "데이터 불러오는 중..."; // 로딩 메시지
+       const res = await callGoogleScript("authenticateAndGetData", id);
+       
+       if (res.success) {
+           var fs = window.adminStudentList.find(x => x.id === id); 
+           if(fs && res.student) res.student.phone = fs.phone;
+           setStudentData(res);
+           document.getElementById('btn-back-to-list').classList.remove('hidden');
+           document.getElementById('login-msg').innerText = ""; // 성공 시 메시지 지우기
+       } else {
+           alert("데이터를 불러오는데 실패했습니다.");
+       }
     }
+
+    function setStudentData(res) {
+      // res.student, res.history 등이 제대로 서버에서 넘어온다고 가정 (Code.gs 확인 필요)
+      myStudent = res.student || {}; 
+      myHistory = res.history || {}; 
+      globalToc1 = res.toc1 || {}; 
+      globalToc2 = res.toc2 || {}; 
+      todayStr = res.today || new Date().toISOString().split('T')[0];
+      
+      var p = todayStr.split('-'); 
+      currentCalYear = parseInt(p[0]); 
+      currentCalMonth = parseInt(p[1]);
+      
+      document.getElementById('cal-welcome-msg').innerText = "🌿 " + myStudent.name + " 학습 기록";
+      renderCalendar(); 
+      showPage('calendar-screen');
+    }
+
+    // -------- 이하 원장님의 기존 화면 구성 함수들 (그대로 유지) --------
+    function renderCalendar() {
+      document.getElementById('cal-month-text').innerText = currentCalYear + "." + String(currentCalMonth).padStart(2,'0');
+      var f = new Date(currentCalYear, currentCalMonth-1, 1).getDay(), l = new Date(currentCalYear, currentCalMonth, 0).getDate(), h = '';
+      for(var i=0; i<f; i++) h += '<div class="cal-day empty"></div>';
+      for(var i=1; i<=l; i++) {
+        var d = currentCalYear + "-" + String(currentCalMonth).padStart(2,'0') + "-" + String(i).padStart(2,'0');
+        var cn = "cal-day";
+        if(d===todayStr) cn+=" today"; 
+        if(myHistory[d] && (myHistory[d].notice || myHistory[d].photo || myHistory[d].btText || myHistory[d].btPhoto)) cn+=" has-record"; 
+        if(new Date(currentCalYear, currentCalMonth-1, i).getDay() === 0 || academyHolidays.includes(d)) cn+=" holiday";
+        h += '<div class="'+cn+'" onclick="openDailyDashboard(\''+d+'\')">'+i+'</div>';
+      } document.getElementById('cal-days').innerHTML = h;
+    }
+
+    function openDailyDashboard(d) {
+      selectedDateStr = d; showPage('main-screen');
+      document.getElementById('dash-date-msg').innerText = d;
+      var r = myHistory[d] || {notice:"", photo:"", btText:"", btPhoto:""};
+      currentDailyPhoto = r.photo; currentBTPhoto = r.btPhoto;
+      renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '교과진도');
+      renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, '연산진도');
+      renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트');
+      renderBookTree(r.btText, r.btPhoto);
+      updateProgressCircles(); switchTab('tab-overview');
+    }
+
+    function renderTab(cid, bn, pa, tM, title) {
+      if (!bn || bn.trim() === "") {
+        document.getElementById(cid).innerHTML = '<div class="board-container"><div class="board-title">'+title+'</div><p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p></div>';
+        return;
+      }
+      var ch = tM[bn]||[];
+      var h = '<div class="legend"><div class="legend-item"><div class="l-box"></div>학습 전</div><div class="legend-item"><div class="l-box" style="background:var(--status-done)"></div>잘 이해했어요</div><div class="legend-item"><div class="l-box" style="background:var(--status-ing)"></div>이해하는 중이에요</div><div class="legend-item"><div class="l-box" style="background:var(--status-need)"></div>시간이 필요해요</div></div><div class="board-container"><div class="board-title">'+bn+'</div>';
+      ch.forEach((c, idx) => { h += '<div class="progress-item"><span>'+c+'</span><div class="status-box" style="background-color:'+colorMap[pa[idx]||'none']+'" onclick="toggleStatus('+idx+',this,\''+cid+'\')"></div></div>'; });
+      document.getElementById(cid).innerHTML = h + '</div>';
+    }
+
+    function renderReport(nt, ph, cid, title) {
+      var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
+      if(currentRole === 'admin') {
+        h += '<textarea id="notice-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')"><button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부</button>';
+        if(ph) h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px;">';
+        h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
+      } else {
+        h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
+        if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
+      } document.getElementById(cid).innerHTML = h + '</div>';
+    }
+
+    function renderBookTree(nt, ph) {
+      var h = '<div class="board-container"><div class="board-title">책나무 국어논술 리포트</div>';
+      if(!myStudent.isBT) {
+        h += '<p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p>';
+      } else {
+        if(currentRole === 'admin') {
+          h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')"><button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부</button>';
+          if(ph) h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px;">';
+          h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
+        } else {
+          h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
+          if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
+        }
+      } document.getElementById('tab-booktree').innerHTML = h + '</div>';
+    }
+
+    async function toggleStatus(idx, el, cid) {
+      if(currentRole !== 'admin') return;
+      var cur = el.style.backgroundColor;
+      var nxt = cur.includes('rgb(255, 255, 255)') ? 'done' : (cur.includes('rgb(128, 0, 128)') ? 'ing' : (cur.includes('rgb(45, 90, 39)') ? 'need' : 'none'));
+      el.style.backgroundColor = colorMap[nxt];
+      if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt; else myStudent.baseProg2[idx] = nxt;
+      updateProgressCircles(); 
+      // 🌟 서버 통신 함수 수정 적용
+      await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2);
+    }
+
+    function handleImg(e, type) {
+      var f = e.target.files[0]; if(!f) return;
+      var r = new FileReader(); r.onload = async function(ev) {
+        // 🌟 서버 통신 함수 수정 적용
+        const res = await callGoogleScript("uploadImageToDrive", myStudent.id, ev.target.result, f.name);
+        if(res.success){ if(type==='R') currentDailyPhoto=res.url; else currentBTPhoto=res.url; saveAllData(); setTimeout(()=>openDailyDashboard(selectedDateStr), 1000); }
+      }; r.readAsDataURL(f);
+    }
+
+    async function saveAllData() {
+      var nt = document.getElementById('notice-input') ? document.getElementById('notice-input').value : "";
+      var bt = document.getElementById('bt-input') ? document.getElementById('bt-input').value : "";
+      // 🌟 서버 통신 함수 수정 적용
+      await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
+      renderCalendar();
+    }
+
+    function updateProgressCircles() {
+      // baseProg 배열이 없을 경우를 대비한 안전 장치 추가
+      var bp1 = myStudent.baseProg1 || [];
+      var bp2 = myStudent.baseProg2 || [];
+      
+      var d1 = bp1.filter(x=>x==='done').length, d2 = bp2.filter(x=>x==='done').length;
+      var p1 = (myStudent.book1 && globalToc1[myStudent.book1]) ? Math.round(d1/globalToc1[myStudent.book1].length*100) : '미등록';
+      var p2 = (myStudent.book2 && globalToc2[myStudent.book2]) ? Math.round(d2/globalToc2[myStudent.book2].length*100) : '미등록';
+      document.getElementById('curri-val').innerText = (p1==='미등록'?p1:p1+'%');
+      document.getElementById('curri-bar').style.strokeDashoffset = (p1==='미등록'?282.7:282.7 - (282.7 * parseInt(p1) / 100));
+      document.getElementById('calc-val').innerText = (p2==='미등록'?p2:p2+'%');
+      document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?282.7:282.7 - (282.7 * parseInt(p2) / 100));
+    }
+
+    function sendSingleSMS(type) {
+      if(!myStudent.phone) return alert("연락처가 없습니다.");
+      var subject = type === 'BT' ? "책나무 국어논술" : "최강수학";
+      var msg = "[책나무최강수학] " + myStudent.name + " 학생 " + subject + " 리포트🌿\n\n▶확인: " + window.location.href.split('?')[0] + "\n▶번호: " + myStudent.id;
+      window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
+    }
+
+    function startBulkSMS(type) {
+      var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2):s.isBT));
+      if(targets.length === 0) return alert("발송 대상이 없습니다.");
+      if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
+      targets.forEach((s, i) => {
+        var msg = "[책나무최강수학] " + s.name + " 학생 " + (type==='MATH'?"최강수학":"책나무") + " 리포트🌿\n\n▶확인: " + window.location.href.split('?')[0] + "\n▶번호: " + s.id;
+        setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
+      });
+    }
+
+    function changeMonth(d) { currentCalMonth+=d; if(currentCalMonth>12){currentCalMonth=1;currentCalYear++}else if(currentCalMonth<1){currentCalMonth=12;currentCalYear--} renderCalendar(); }
+    function goBackToCalendar() { showPage('calendar-screen'); renderCalendar(); }
+    function goBackToList() { showPage('admin-screen'); }
+    function switchTab(tid) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(tid).classList.add('active'); }
   </script>
 </body>
 </html>
