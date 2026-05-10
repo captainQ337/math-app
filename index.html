@@ -366,11 +366,21 @@
     }; r.readAsDataURL(f);
   }
 
+ // 🌟 저장 완료 알림창 기능이 추가된 함수
   async function saveAllData() {
     var nt = document.getElementById('notice-input') ? document.getElementById('notice-input').value : "";
     var bt = document.getElementById('bt-input') ? document.getElementById('bt-input').value : "";
-    await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
-    renderCalendar();
+    
+    // 서버에 저장 요청 후 결과를 res 변수에 담습니다.
+    const res = await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
+    
+    // 결과에 따라 알림창을 띄워줍니다.
+    if (res.success) {
+      alert("✅ 리포트가 성공적으로 저장되었습니다!");
+      renderCalendar();
+    } else {
+      alert("❌ 저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
   }
 
   function updateProgressCircles() {
