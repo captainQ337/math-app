@@ -396,19 +396,26 @@
     document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?282.7:282.7 - (282.7 * parseInt(p2) / 100));
   }
 
+  // 1. 개별 문자 발송 함수
   function sendSingleSMS(type) {
     if(!myStudent.phone) return alert("연락처가 없습니다.");
-    var subject = type === 'BT' ? "책나무 국어논술" : "최강수학";
-    var msg = "[책나무최강수학] " + myStudent.name + " 학생 " + subject + " 리포트🌿\n\n▶확인: " + window.location.href.split('?')[0] + "\n▶번호: " + myStudent.id;
+    
+    // 원장님이 요청하신 심플한 문자 양식
+    var msg = "[책나무최강수학] " + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id;
+    
     window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
   }
 
+  // 2. 단체(일괄) 문자 발송 함수
   function startBulkSMS(type) {
     var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2):s.isBT));
     if(targets.length === 0) return alert("발송 대상이 없습니다.");
     if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
+    
     targets.forEach((s, i) => {
-      var msg = "[책나무최강수학] " + s.name + " 학생 " + (type==='MATH'?"최강수학":"책나무") + " 리포트🌿\n\n▶확인: " + window.location.href.split('?')[0] + "\n▶번호: " + s.id;
+      // 원장님이 요청하신 심플한 문자 양식
+      var msg = "[책나무최강수학] " + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id;
+      
       setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
     });
   }
