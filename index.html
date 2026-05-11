@@ -401,7 +401,7 @@
     if(!myStudent.phone) return alert("연락처가 없습니다.");
     
     // 원장님이 요청하신 심플한 문자 양식
-    var msg = "[책나무최강수학] " + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id;
+    var msg = "🌿 책나무최강수학 알림\n" + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id;
     
     window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
   }
