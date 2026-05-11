@@ -396,11 +396,11 @@
     document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?282.7:282.7 - (282.7 * parseInt(p2) / 100));
   }
 
-  // 1. 개별 문자 발송 함수
+ // 1. 개별 문자 발송 함수
   function sendSingleSMS(type) {
     if(!myStudent.phone) return alert("연락처가 없습니다.");
     
-    // 원장님이 요청하신 심플한 문자 양식
+    // 대괄호를 빼고 수정한 부분입니다!
     var msg = "🌿 책나무최강수학 알림\n" + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id;
     
     window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
@@ -413,8 +413,8 @@
     if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
     
     targets.forEach((s, i) => {
-      // 원장님이 요청하신 심플한 문자 양식
-      var msg = "[책나무최강수학] " + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id;
+      // 대괄호를 빼고 수정한 부분입니다!
+      var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id;
       
       setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
     });
