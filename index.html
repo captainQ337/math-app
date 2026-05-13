@@ -433,6 +433,12 @@
   function goBackToCalendar() { showPage('calendar-screen'); renderCalendar(); }
   function goBackToList() { showPage('admin-screen'); }
   function switchTab(tid) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(tid).classList.add('active'); }
+// ... (기존 코드들) ...
+  function changeMonth(d) { currentCalMonth+=d; if(currentCalMonth>12){currentCalMonth=1;currentCalYear++}else if(currentCalMonth<1){currentCalMonth=12;currentCalYear--} renderCalendar(); }
+  function goBackToCalendar() { showPage('calendar-screen'); renderCalendar(); }
+  function goBackToList() { showPage('admin-screen'); }
+  function switchTab(tid) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(tid).classList.add('active'); }
+
 </script>
 </body>
 </html>
