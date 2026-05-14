@@ -172,7 +172,10 @@
   function renderAdminList() {
     let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px;">번호</th><th style="padding:10px;">이름</th><th style="padding:10px;">수학</th><th style="padding:10px;">책나무</th></tr></thead><tbody>';
     window.adminStudentList.forEach(stu => {
-      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')"><td style="padding:10px;">${stu.id}</td><td style="padding:10px;"><strong>${stu.name}</strong></td><td style="padding:10px; text-align:center;">${stu.isMath?'Y':'-'}</td><td style="padding:10px; text-align:center;">${stu.isBT?'Y':'-'}</td></tr>`;
+      // 🌟 이모지 반응이 있으면 이름 옆에 🔴 아이콘 표시
+      const nameDisplay = stu.hasNew ? `<strong>${stu.name}</strong> <span style="font-size:12px;">🔴</span>` : `<strong>${stu.name}</strong>`;
+      
+      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')"><td style="padding:10px;">${stu.id}</td><td style="padding:10px;">${nameDisplay}</td><td style="padding:10px; text-align:center;">${stu.isMath?'Y':'-'}</td><td style="padding:10px; text-align:center;">${stu.isBT?'Y':'-'}</td></tr>`;
     });
     document.getElementById('student-list').innerHTML = h + '</tbody></table>';
   }
@@ -214,7 +217,7 @@
     renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '교과진도');
     renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, '연산진도');
     renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
-    renderBookTree(r.btText, r.btPhoto);
+    renderBookTree(r.btText, r.btPhoto, r.reaction);
     updateProgressCircles(); switchTab('tab-overview');
   }
 
@@ -235,21 +238,23 @@
     } else {
       h += '<p style="white-space:pre-wrap;">'+(nt||'기록이 없습니다.')+'</p>';
       if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
-      h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold;">리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none;">📞</button></div>';
+      h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold;">리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer;">📞</button></div>';
     } document.getElementById(cid).innerHTML = h + '</div>';
   }
 
-  function renderBookTree(nt, ph) {
+  function renderBookTree(nt, ph, reaction) {
     var h = '<div class="board-container"><div class="board-title">책나무 리포트</div>';
     if(!myStudent.isBT) { h += '<p style="text-align:center; color:#888; padding:30px;">미수강 과목입니다.</p>'; }
     else {
       if(currentRole === 'admin') {
+        if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px;">' + reaction + '</span></div>';
         h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')"><button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 사진 첨부</button>';
         if(ph) h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px;">';
         h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 문자 발송</button>';
       } else {
         h += '<p style="white-space:pre-wrap;">'+(nt||'기록이 없습니다.')+'</p>';
         if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
+        h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold;">리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer;">📞</button></div>';
       }
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
   }
