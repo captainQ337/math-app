@@ -440,6 +440,27 @@
   function goBackToList() { showPage('admin-screen'); }
   function switchTab(tid) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(tid).classList.add('active'); }
 
+// ...(위쪽 기존 코드들)...
+
+  function goBackToList() { showPage('admin-screen'); }
+  function switchTab(tid) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById(tid).classList.add('active'); }
+
+  // 👇 여기에 아까 드린 코드를 통째로 붙여넣으세요! 👇
+  async function sendReaction(emoji) {
+    if (!myStudent || !myStudent.id) return;
+    const res = await callGoogleScript("saveReaction", myStudent.id, emoji);
+    if (res.success) {
+      alert(emoji + " 반응이 원장님께 전달되었습니다! 감사합니다.");
+    } else {
+      alert("앗, 반응 전송 중 오류가 발생했습니다. (" + res.message + ")");
+    }
+  }
+  // 👆 여기까지 붙여넣기 끝! 👆
+
+</script>
+</body>
+</html>
+  
 </script>
 </body>
 </html>
