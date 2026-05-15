@@ -171,14 +171,20 @@
   }
 
   function renderAdminList() {
-    let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px; text-align:center;">번호</th><th style="padding:10px; text-align:center;">이름</th><th style="padding:10px; text-align:center;">수학</th><th style="padding:10px; text-align:center;">책나무</th></tr></thead><tbody>';
+    // 🌟 1. 이름 칸을 가운데(center)에서 왼쪽(left) 정렬로 바꾸고 여백을 주었습니다.
+    let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px; text-align:center;">번호</th><th style="padding:10px; text-align:left; padding-left:15px;">이름</th><th style="padding:10px; text-align:center;">수학</th><th style="padding:10px; text-align:center;">책나무</th></tr></thead><tbody>';
+    
     window.adminStudentList.forEach(stu => {
-      // 🌟 가운데 정렬 및 수학/책나무 'Y' 옆에 빨간점 붙이기
-      const nameDisplay = `<strong>${stu.name}</strong>`;
+      // 🌟 2. 이름 옆이 아닌, 수학/책나무 'Y' 옆에 빨간 점을 붙였습니다.
       const mathDisplay = stu.isMath ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
       const btDisplay = stu.isBT ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
-
-      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')"><td style="padding:10px; text-align:center;">${stu.id}</td><td style="padding:10px; text-align:center;">${nameDisplay}</td><td style="padding:10px; text-align:center; color:#2D5A27;">${mathDisplay}</td><td style="padding:10px; text-align:center; color:#e74c3c;">${btDisplay}</td></tr>`;
+      
+      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')">
+              <td style="padding:12px 10px; text-align:center;">${stu.id}</td>
+              <td style="padding:12px 10px; text-align:left; padding-left:15px;"><strong>${stu.name}</strong></td>
+              <td style="padding:12px 10px; text-align:center; color:#2D5A27; font-weight:bold;">${mathDisplay}</td>
+              <td style="padding:12px 10px; text-align:center; color:#e74c3c; font-weight:bold;">${btDisplay}</td>
+            </tr>`;
     });
     document.getElementById('student-list').innerHTML = h + '</tbody></table>';
   }
@@ -205,30 +211,39 @@
     document.getElementById('cal-month-text').innerText = currentCalYear + "." + String(currentCalMonth).padStart(2,'0');
     var f = new Date(currentCalYear, currentCalMonth-1, 1).getDay(), l = new Date(currentCalYear, currentCalMonth, 0).getDate(), h = '';
     for(var i=0; i<f; i++) h += '<div class="cal-day empty"></div>';
+    
     for(var i=1; i<=l; i++) {
       var d = currentCalYear + "-" + String(currentCalMonth).padStart(2,'0') + "-" + String(i).padStart(2,'0');
       var cn = "cal-day" + (d===todayStr?" today":"") + ((myHistory[d]&&(myHistory[d].notice||myHistory[d].btText))?" has-record":"") + ((new Date(currentCalYear,currentCalMonth-1,i).getDay()===0||academyHolidays.includes(d))?" holiday":"");
-      h += '<div class="'+cn+'" onclick="openDailyDashboard(\''+d+'\')">'+i+'</div>';
-    } document.getElementById('cal-days').innerHTML = h;
+      
+      var dayContent = i;
+      // 🌟 3. 달력의 특정 날짜에도 이모지 반응이 있다면 빨간 점을 표시합니다!
+      if (myHistory[d] && myHistory[d].reaction) {
+        dayContent += '<span style="position:absolute; top:2px; right:4px; font-size:10px; color:red;">🔴</span>';
+      }
+      
+      h += '<div class="'+cn+'" onclick="openDailyDashboard(\''+d+'\')">'+dayContent+'</div>';
+    } 
+    document.getElementById('cal-days').innerHTML = h;
   }
 
- function openDailyDashboard(d) {
+  function openDailyDashboard(d) {
     selectedDateStr = d; showPage('main-screen');
     document.getElementById('dash-date-msg').innerText = d;
     var r = myHistory[d] || {notice:"", photo:"", btText:"", btPhoto:"", reaction:""};
     currentDailyPhoto = r.photo; currentBTPhoto = r.btPhoto;
     
-    // 🌟 이모지 데이터를 지우지 않고, 뒤에서 조용히 알림만 끕니다.
+    // 🌟 4. 알림 끄기 로직 (화면의 r.reaction은 지우지 않아야 리포트에 이모지가 보입니다!)
     if (currentRole === 'admin' && r.reaction) {
-      callGoogleScript("clearNotification", myStudent.id, d); 
+      callGoogleScript("clearNotification", myStudent.id, d); // 서버에는 확인했다고 전송
       var targetStu = window.adminStudentList.find(x => x.id === myStudent.id);
-      if (targetStu) targetStu.hasNew = false;
+      if (targetStu) targetStu.hasNew = false; // 목록의 빨간점만 제거
     }
 
     renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '교과진도');
     renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, '연산진도');
     
-    // 이제 화면에 이모지가 정상적으로 다시 나타납니다!
+    // 이모지가 정상적으로 화면에 나타나게 전달
     renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
     
