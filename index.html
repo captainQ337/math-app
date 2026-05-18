@@ -150,9 +150,15 @@
 
   async function callGoogleScript(funcName, ...args) {
     try {
-      const response = await fetch(`${API_URL}?func=${funcName}`, { method: 'POST', body: JSON.stringify(args) });
+      const response = await fetch(`${API_URL}?func=${funcName}`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 🌟 통신 충돌 방지 핵심 코드
+        body: JSON.stringify(args) 
+      });
       return await response.json();
-    } catch (e) { return { success: false, message: "서버 연결 실패" }; }
+    } catch (e) { 
+      return { success: false, message: e.toString() }; 
+    }
   }
 
   async function doLogin() {
@@ -301,12 +307,11 @@
     var f = e.target.files[0]; 
     if(!f) return;
 
-    // 1. 원장님이 사진을 올리는 동안 버튼 글씨를 바꿔서 로딩 중임을 알려줍니다.
     var targetBtn = e.target.nextElementSibling; 
     var originalText = type === 'R' ? "+ 📸 사진 첨부" : "+ 📸 책나무 사진 첨부";
     
     if(targetBtn) {
-      targetBtn.innerText = "⏳ 사진 올리는 중... (잠시만 기다려주세요)";
+      targetBtn.innerText = "⏳ 사진 올리는 중...";
       targetBtn.style.backgroundColor = "#E8ECE8";
       targetBtn.disabled = true;
     }
@@ -315,54 +320,44 @@
     r.onload = function(ev) {
       var img = new Image();
       img.onload = async function() {
-        // 2. 스마트폰 고화질 사진 용량을 줄여서 전송 속도를 10배 빠르게 만듭니다 (최대 폭 800px)
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");
-        var maxW = 800;
-        var maxH = 800;
-        var width = img.width;
-        var height = img.height;
+        var maxW = 800; var maxH = 800;
+        var width = img.width; var height = img.height;
 
-        if (width > height) {
-          if (width > maxW) { height *= maxW / width; width = maxW; }
-        } else {
-          if (height > maxH) { width *= maxH / height; height = maxH; }
-        }
-        canvas.width = width;
-        canvas.height = height;
+        if (width > height) { if (width > maxW) { height *= maxW / width; width = maxW; } } 
+        else { if (height > maxH) { width *= maxH / height; height = maxH; } }
+        canvas.width = width; canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
         
-        // 70% 품질의 가벼운 이미지로 압축
         var dataUrl = canvas.toDataURL("image/jpeg", 0.7); 
 
-        // 3. 구글 서버로 초고속 전송
-        const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, f.name);
-        
-        if(res.success) { 
-          if(type === 'R') currentDailyPhoto = res.url; 
-          else currentBTPhoto = res.url; 
+        try {
+          // 서버로 전송
+          const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, f.name);
           
-          await saveAllData(); // 사진 주소까지 완벽하게 시트에 저장
-          
-          if(targetBtn) {
-            targetBtn.innerText = "✅ 업로드 완료!";
-            targetBtn.style.backgroundColor = "#FFF";
+          if(res.success) { 
+            if(type === 'R') currentDailyPhoto = res.url; 
+            else currentBTPhoto = res.url; 
+            
+            await saveAllData(); 
+            if(targetBtn) { targetBtn.innerText = "✅ 업로드 완료!"; targetBtn.style.backgroundColor = "#FFF"; }
+            setTimeout(() => openDailyDashboard(selectedDateStr), 500); 
+          } else {
+            // 🌟 실패 시 진짜 원인을 팝업으로 띄움
+            alert("❌ 구글 서버 거절 사유:\n" + res.message);
+            if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
           }
-          setTimeout(() => openDailyDashboard(selectedDateStr), 500); // 화면 새로고침
-        } else {
-          alert("사진 업로드 실패: 인터넷이 불안정합니다.");
-          if(targetBtn) { 
-            targetBtn.innerText = originalText; 
-            targetBtn.style.backgroundColor = "#FFF"; 
-            targetBtn.disabled = false; 
-          }
+        } catch(err) {
+          // 🌟 폰과 서버 연결이 끊겼을 때
+          alert("❌ 스마트폰 통신 에러:\n" + err.message);
+          if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
         }
       };
       img.src = ev.target.result;
     }; 
     r.readAsDataURL(f);
   }
-
   async function saveAllData() {
     var nt = document.getElementById('notice-input')?document.getElementById('notice-input').value:"";
     var bt = document.getElementById('bt-input')?document.getElementById('bt-input').value:"";
