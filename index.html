@@ -152,7 +152,7 @@
     try {
       const response = await fetch(`${API_URL}?func=${funcName}`, { 
         method: 'POST', 
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 🌟 통신 충돌 방지 핵심 코드
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
         body: JSON.stringify(args) 
       });
       return await response.json();
@@ -177,11 +177,9 @@
   }
 
   function renderAdminList() {
-    // 🌟 1. 이름 칸을 가운데(center)에서 왼쪽(left) 정렬로 바꾸고 여백을 주었습니다.
     let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px; text-align:center;">번호</th><th style="padding:10px; text-align:left; padding-left:15px;">이름</th><th style="padding:10px; text-align:center;">수학</th><th style="padding:10px; text-align:center;">책나무</th></tr></thead><tbody>';
     
     window.adminStudentList.forEach(stu => {
-      // 🌟 2. 이름 옆이 아닌, 수학/책나무 'Y' 옆에 빨간 점을 붙였습니다.
       const mathDisplay = stu.isMath ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
       const btDisplay = stu.isBT ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
       
@@ -223,7 +221,6 @@
       var cn = "cal-day" + (d===todayStr?" today":"") + ((myHistory[d]&&(myHistory[d].notice||myHistory[d].btText))?" has-record":"") + ((new Date(currentCalYear,currentCalMonth-1,i).getDay()===0||academyHolidays.includes(d))?" holiday":"");
       
       var dayContent = i;
-      // 🌟 3. 달력의 특정 날짜에도 이모지 반응이 있다면 빨간 점을 표시합니다!
       if (myHistory[d] && myHistory[d].reaction) {
         dayContent += '<span style="position:absolute; top:2px; right:4px; font-size:10px; color:red;">🔴</span>';
       }
@@ -239,17 +236,15 @@
     var r = myHistory[d] || {notice:"", photo:"", btText:"", btPhoto:"", reaction:""};
     currentDailyPhoto = r.photo; currentBTPhoto = r.btPhoto;
     
-    // 🌟 4. 알림 끄기 로직 (화면의 r.reaction은 지우지 않아야 리포트에 이모지가 보입니다!)
     if (currentRole === 'admin' && r.reaction) {
-      callGoogleScript("clearNotification", myStudent.id, d); // 서버에는 확인했다고 전송
+      callGoogleScript("clearNotification", myStudent.id, d); 
       var targetStu = window.adminStudentList.find(x => x.id === myStudent.id);
-      if (targetStu) targetStu.hasNew = false; // 목록의 빨간점만 제거
+      if (targetStu) targetStu.hasNew = false; 
     }
 
     renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '교과진도');
     renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, '연산진도');
     
-    // 이모지가 정상적으로 화면에 나타나게 전달
     renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
     
@@ -267,8 +262,16 @@
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
       if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
-      h += '<textarea id="notice-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')"><button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부</button>';
-      if(ph) h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px;">';
+      h += '<textarea id="notice-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')">';
+      
+      // 🌟 사진이 있으면 사진과 [삭제] 버튼 표시, 없으면 [첨부] 버튼 표시
+      if(ph) {
+        h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
+        h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'R\')">🗑️ 사진 삭제 (다시 올리기)</button>';
+      } else {
+        h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부</button>';
+      }
+      
       h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
     } else {
       h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -283,8 +286,16 @@
     else {
       if(currentRole === 'admin') {
         if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
-        h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')"><button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부</button>';
-        if(ph) h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px;">';
+        h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')">';
+        
+        // 🌟 책나무 사진이 있으면 사진과 [삭제] 버튼 표시, 없으면 [첨부] 버튼 표시
+        if(ph) {
+          h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
+          h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'B\')">🗑️ 책나무 사진 삭제 (다시 올리기)</button>';
+        } else {
+          h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부</button>';
+        }
+        
         h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
       } else {
         h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -292,6 +303,15 @@
         h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
       }
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
+  }
+
+  // 🌟 사진을 삭제하고 서버에 바로 저장하는 함수 (새로 추가)
+  function deletePhoto(type) {
+    if(!confirm("사진을 삭제하시겠습니까?")) return;
+    if(type === 'R') currentDailyPhoto = "";
+    else currentBTPhoto = "";
+    saveAllData(); // 빈 사진으로 구글 시트에 바로 덮어쓰기
+    setTimeout(() => openDailyDashboard(selectedDateStr), 500); // 화면 새로고침
   }
 
   async function toggleStatus(idx, el, cid) {
