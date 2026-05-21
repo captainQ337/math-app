@@ -408,11 +408,26 @@ function renderReport(nt, ph, cid, title, reaction) {
     }; 
     r.readAsDataURL(f);
   }
+ // 🌟 (수정됨) 서버에 저장 후 스마트폰 화면 데이터도 즉시 갱신하는 함수
   async function saveAllData() {
     var nt = document.getElementById('notice-input')?document.getElementById('notice-input').value:"";
     var bt = document.getElementById('bt-input')?document.getElementById('bt-input').value:"";
+    
+    // 1. 구글 시트(서버)에 저장
     const res = await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
-    if (res.success) { alert("✅ 저장되었습니다!"); renderCalendar(); }
+    
+    if (res.success) { 
+      alert("✅ 저장되었습니다!"); 
+      
+      // 🌟 2. 여기가 핵심! 스마트폰 앱의 기억(myHistory)에도 방금 올린 사진과 글을 덮어써 줍니다.
+      if(!myHistory[selectedDateStr]) myHistory[selectedDateStr] = {};
+      myHistory[selectedDateStr].notice = nt;
+      myHistory[selectedDateStr].photo = currentDailyPhoto;
+      myHistory[selectedDateStr].btText = bt;
+      myHistory[selectedDateStr].btPhoto = currentBTPhoto;
+      
+      renderCalendar(); 
+    }
   }
 
   function updateProgressCircles() {
