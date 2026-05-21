@@ -258,20 +258,22 @@
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
-  function renderReport(nt, ph, cid, title, reaction) {
+function renderReport(nt, ph, cid, title, reaction) {
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
       if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
-      h += '<textarea id="notice-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')">';
       
-      // 🌟 사진이 있으면 사진과 [삭제] 버튼 표시, 없으면 [첨부] 버튼 표시
+      // 🌟 AI 다듬기 버튼 추가 (수학)
+      h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-r" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'R\')">✨ AI로 다듬기</button></div>';
+      
+      h += '<textarea id="notice-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')">';
+      
       if(ph) {
         h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
         h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'R\')">🗑️ 사진 삭제 (다시 올리기)</button>';
       } else {
         h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부</button>';
       }
-      
       h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
     } else {
       h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -286,16 +288,18 @@
     else {
       if(currentRole === 'admin') {
         if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
-        h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')">';
         
-        // 🌟 책나무 사진이 있으면 사진과 [삭제] 버튼 표시, 없으면 [첨부] 버튼 표시
+        // 🌟 AI 다듬기 버튼 추가 (책나무)
+        h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-b" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'B\')">✨ AI로 다듬기</button></div>';
+
+        h += '<textarea id="bt-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')">';
+        
         if(ph) {
           h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
           h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'B\')">🗑️ 책나무 사진 삭제 (다시 올리기)</button>';
         } else {
           h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부</button>';
         }
-        
         h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
       } else {
         h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -303,6 +307,32 @@
         h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
       }
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
+  }
+
+  // 🌟 (새로 추가) 프론트엔드에서 AI 변환 요청하는 함수
+  async function refineWithAI(type) {
+    var textAreaId = type === 'R' ? 'notice-input' : 'bt-input';
+    var btnId = type === 'R' ? 'btn-ai-r' : 'btn-ai-b';
+    
+    var draftText = document.getElementById(textAreaId).value;
+    if (!draftText.trim()) { alert("초안을 먼저 짧게라도 작성해주세요!"); return; }
+
+    var btn = document.getElementById(btnId);
+    var originalText = btn.innerText;
+    btn.innerText = "⏳ AI 변환 중...";
+    btn.disabled = true;
+
+    // 서버(구글 스크립트)로 초안 전송
+    const res = await callGoogleScript("refineReportWithAI", draftText);
+
+    if (res.success) {
+      document.getElementById(textAreaId).value = res.result; // AI가 다듬은 글로 덮어쓰기
+    } else {
+      alert("❌ AI 변환 실패:\n" + res.message);
+    }
+    
+    btn.innerText = originalText;
+    btn.disabled = false;
   }
 
   // 🌟 사진을 삭제하고 서버에 바로 저장하는 함수 (새로 추가)
