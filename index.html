@@ -33,19 +33,22 @@
     .cal-day.holiday { color: #E53935; font-weight: 700; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #EEE;}
     .btn-back { background: #EEE; color: #555; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    
     .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 20px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
     .tab-btn { flex: 1; padding: 10px 0; background: transparent; border: none; font-size: 12px; cursor: pointer; color: #777; font-weight: 700; border-radius: 10px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); letter-spacing: -0.5px; white-space: nowrap; }
     .tab-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--primary-color)); color: white; box-shadow: 0 4px 8px rgba(45, 90, 39, 0.35), 0 1px 3px rgba(0,0,0,0.1); transform: translateY(-2px); }
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-    .progress-overview { display: flex; justify-content: space-around; background: white; border-radius: 15px; padding: 30px 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #EEE; }
-    .chart-box { text-align: center; width: 45%; }
-    .chart-box p { font-size: 14px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; }
-    .circle-svg { width: 110px; height: 110px; transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: #E8F5E9; stroke-width: 10; }
-    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
-    .chart-value { position: absolute; width: 110px; line-height: 110px; top: 0; left: 0; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; color: var(--text-dark); }
+    
+    .progress-overview { display: flex; justify-content: space-around; background: white; border-radius: 15px; padding: 25px 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #EEE; }
+    .chart-box { text-align: center; width: 45%; transition: width 0.3s ease; } /* 기본은 2개일 때 너비 45% */
+    .chart-box p { font-size: 13px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; }
+    .circle-svg { width: 84px; height: 84px; transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: #E8F5E9; stroke-width: 8; }
+    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
+    .chart-value { position: absolute; width: 84px; line-height: 84px; top: 0; left: 0; font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-dark); }
     .relative { position: relative; display: inline-block; }
+    
     .board-container { border: 1.5px solid var(--primary-color); padding: 15px; border-radius: 12px; background: white; margin-bottom: 20px; }
     .board-title { text-align: center; font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #EEE; }
     .progress-item { display: flex; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #F5F5F5; align-items: center; font-size: 14px; }
@@ -103,34 +106,45 @@
       <h2 id="dash-date-msg" style="font-size:18px; font-weight:700; margin:0; color:var(--primary-color);"></h2>
       <button class="btn-back" onclick="goBackToCalendar()">◀ 달력으로</button>
     </div>
+    
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-overview')">성취도</button>
-      <button class="tab-btn" onclick="switchTab('tab-curriculum')">교과진도</button>
-      <button class="tab-btn" onclick="switchTab('tab-calculation')">연산진도</button>
+      <button class="tab-btn active" onclick="switchTab('tab-overview')">성취</button>
+      <button class="tab-btn" onclick="switchTab('tab-curriculum')">교과</button>
+      <button class="tab-btn" onclick="switchTab('tab-calculation')" id="tab-name-calc1">연산</button>
+      <button class="tab-btn" id="btn-tab-calc2" style="display:none;" onclick="switchTab('tab-calculation2')">연산2</button>
       <button class="tab-btn" onclick="switchTab('tab-notice')">리포트</button>
       <button class="tab-btn" onclick="switchTab('tab-booktree')">책나무</button>
     </div>
 
     <div id="tab-overview" class="tab-content active">
       <div class="progress-overview">
-        <div class="chart-box">
-          <p>📘 누적 교과 성취</p>
+        <div class="chart-box" id="box-curri">
+          <p>📘 교과</p>
           <div class="relative">
-            <svg class="circle-svg"><circle class="circle-bg" cx="55" cy="55" r="45"></circle><circle id="curri-bar" class="circle-bar" cx="55" cy="55" r="45" stroke-dasharray="282.7" stroke-dashoffset="282.7"></circle></svg>
+            <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="curri-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="curri-val" class="chart-value">0%</div>
           </div>
         </div>
-        <div class="chart-box">
-          <p>📙 누적 연산 성취</p>
+        <div class="chart-box" id="box-calc">
+          <p id="label-calc1">📙 연산</p>
           <div class="relative">
-            <svg class="circle-svg"><circle class="circle-bg" cx="55" cy="55" r="45"></circle><circle id="calc-bar" class="circle-bar" cx="55" cy="55" r="45" stroke-dasharray="282.7" stroke-dashoffset="282.7"></circle></svg>
+            <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="calc-val" class="chart-value">0%</div>
+          </div>
+        </div>
+        <div class="chart-box" id="box-calc2" style="display:none;">
+          <p>📗 연산2</p>
+          <div class="relative">
+            <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc2-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
+            <div id="calc2-val" class="chart-value">0%</div>
           </div>
         </div>
       </div>
     </div>
+    
     <div id="tab-curriculum" class="tab-content"></div>
     <div id="tab-calculation" class="tab-content"></div>
+    <div id="tab-calculation2" class="tab-content"></div>
     <div id="tab-notice" class="tab-content"></div>
     <div id="tab-booktree" class="tab-content"></div>
   </div>
@@ -224,7 +238,6 @@
       if (myHistory[d] && myHistory[d].reaction) {
         dayContent += '<span style="position:absolute; top:2px; right:4px; font-size:10px; color:red;">🔴</span>';
       }
-      
       h += '<div class="'+cn+'" onclick="openDailyDashboard(\''+d+'\')">'+dayContent+'</div>';
     } 
     document.getElementById('cal-days').innerHTML = h;
@@ -242,8 +255,33 @@
       if (targetStu) targetStu.hasNew = false; 
     }
 
+    // 🌟 연산2(book3) 데이터 유무에 따른 마법의 동적 화면 처리!
+    var hasCalc2 = (myStudent.book3 && myStudent.book3.trim() !== "");
+    
+    if (hasCalc2) {
+      document.getElementById('btn-tab-calc2').style.display = 'block';
+      document.getElementById('box-calc2').style.display = 'inline-block';
+      document.getElementById('box-curri').style.width = '32%';
+      document.getElementById('box-calc').style.width = '32%';
+      document.getElementById('tab-name-calc1').innerText = '연산1';
+      document.getElementById('label-calc1').innerText = '📙 연산1';
+    } else {
+      document.getElementById('btn-tab-calc2').style.display = 'none';
+      document.getElementById('box-calc2').style.display = 'none';
+      document.getElementById('box-curri').style.width = '45%';
+      document.getElementById('box-calc').style.width = '45%';
+      document.getElementById('tab-name-calc1').innerText = '연산진도';
+      document.getElementById('label-calc1').innerText = '📙 연산';
+    }
+
     renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '교과진도');
-    renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, '연산진도');
+    renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '연산진도 1' : '연산진도');
+    
+    if (hasCalc2) {
+      renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '연산진도 2');
+    } else {
+      document.getElementById('tab-calculation2').innerHTML = ""; // 데이터 없으면 빈칸으로 처리
+    }
     
     renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
@@ -258,12 +296,11 @@
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
-function renderReport(nt, ph, cid, title, reaction) {
+  function renderReport(nt, ph, cid, title, reaction) {
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
       if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
       
-      // 🌟 AI 다듬기 버튼 추가 (수학)
       h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-r" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'R\')">✨ AI로 다듬기</button></div>';
       
       h += '<textarea id="notice-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')">';
@@ -289,7 +326,6 @@ function renderReport(nt, ph, cid, title, reaction) {
       if(currentRole === 'admin') {
         if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
         
-        // 🌟 AI 다듬기 버튼 추가 (책나무)
         h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-b" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'B\')">✨ AI로 다듬기</button></div>';
 
         h += '<textarea id="bt-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')">';
@@ -309,7 +345,6 @@ function renderReport(nt, ph, cid, title, reaction) {
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
   }
 
-  // 🌟 (새로 추가) 프론트엔드에서 AI 변환 요청하는 함수
   async function refineWithAI(type) {
     var textAreaId = type === 'R' ? 'notice-input' : 'bt-input';
     var btnId = type === 'R' ? 'btn-ai-r' : 'btn-ai-b';
@@ -322,11 +357,10 @@ function renderReport(nt, ph, cid, title, reaction) {
     btn.innerText = "⏳ AI 변환 중...";
     btn.disabled = true;
 
-    // 서버(구글 스크립트)로 초안 전송
     const res = await callGoogleScript("refineReportWithAI", draftText);
 
     if (res.success) {
-      document.getElementById(textAreaId).value = res.result; // AI가 다듬은 글로 덮어쓰기
+      document.getElementById(textAreaId).value = res.result; 
     } else {
       alert("❌ AI 변환 실패:\n" + res.message);
     }
@@ -335,13 +369,12 @@ function renderReport(nt, ph, cid, title, reaction) {
     btn.disabled = false;
   }
 
-  // 🌟 사진을 삭제하고 서버에 바로 저장하는 함수 (새로 추가)
   function deletePhoto(type) {
     if(!confirm("사진을 삭제하시겠습니까?")) return;
     if(type === 'R') currentDailyPhoto = "";
     else currentBTPhoto = "";
-    saveAllData(); // 빈 사진으로 구글 시트에 바로 덮어쓰기
-    setTimeout(() => openDailyDashboard(selectedDateStr), 500); // 화면 새로고침
+    saveAllData(); 
+    setTimeout(() => openDailyDashboard(selectedDateStr), 500); 
   }
 
   async function toggleStatus(idx, el, cid) {
@@ -349,8 +382,13 @@ function renderReport(nt, ph, cid, title, reaction) {
     var cur = el.style.backgroundColor;
     var nxt = cur.includes('rgb(255, 255, 255)') ? 'done' : (cur.includes('rgb(128, 0, 128)') ? 'ing' : (cur.includes('rgb(45, 90, 39)') ? 'need' : 'none'));
     el.style.backgroundColor = colorMap[nxt];
-    if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt; else myStudent.baseProg2[idx] = nxt;
-    updateProgressCircles(); await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2);
+    
+    if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt; 
+    else if(cid === 'tab-calculation') myStudent.baseProg2[idx] = nxt;
+    else if(cid === 'tab-calculation2') myStudent.baseProg3[idx] = nxt; 
+    
+    updateProgressCircles(); 
+    await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3); 
   }
 
   function handleImg(e, type) {
@@ -383,7 +421,6 @@ function renderReport(nt, ph, cid, title, reaction) {
         var dataUrl = canvas.toDataURL("image/jpeg", 0.7); 
 
         try {
-          // 서버로 전송
           const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, f.name);
           
           if(res.success) { 
@@ -394,12 +431,10 @@ function renderReport(nt, ph, cid, title, reaction) {
             if(targetBtn) { targetBtn.innerText = "✅ 업로드 완료!"; targetBtn.style.backgroundColor = "#FFF"; }
             setTimeout(() => openDailyDashboard(selectedDateStr), 500); 
           } else {
-            // 🌟 실패 시 진짜 원인을 팝업으로 띄움
             alert("❌ 구글 서버 거절 사유:\n" + res.message);
             if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
           }
         } catch(err) {
-          // 🌟 폰과 서버 연결이 끊겼을 때
           alert("❌ 스마트폰 통신 에러:\n" + err.message);
           if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
         }
@@ -408,18 +443,16 @@ function renderReport(nt, ph, cid, title, reaction) {
     }; 
     r.readAsDataURL(f);
   }
- // 🌟 (수정됨) 서버에 저장 후 스마트폰 화면 데이터도 즉시 갱신하는 함수
+
   async function saveAllData() {
     var nt = document.getElementById('notice-input')?document.getElementById('notice-input').value:"";
     var bt = document.getElementById('bt-input')?document.getElementById('bt-input').value:"";
     
-    // 1. 구글 시트(서버)에 저장
     const res = await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
     
     if (res.success) { 
       alert("✅ 저장되었습니다!"); 
       
-      // 🌟 2. 여기가 핵심! 스마트폰 앱의 기억(myHistory)에도 방금 올린 사진과 글을 덮어써 줍니다.
       if(!myHistory[selectedDateStr]) myHistory[selectedDateStr] = {};
       myHistory[selectedDateStr].notice = nt;
       myHistory[selectedDateStr].photo = currentDailyPhoto;
@@ -433,13 +466,24 @@ function renderReport(nt, ph, cid, title, reaction) {
   function updateProgressCircles() {
     var bp1 = myStudent.baseProg1 || [];
     var bp2 = myStudent.baseProg2 || [];
-    var d1 = bp1.filter(x=>x==='done').length, d2 = bp2.filter(x=>x==='done').length;
+    var bp3 = myStudent.baseProg3 || [];
+    
+    var d1 = bp1.filter(x=>x==='done').length;
+    var d2 = bp2.filter(x=>x==='done').length;
+    var d3 = bp3.filter(x=>x==='done').length;
+    
     var p1 = (myStudent.book1 && globalToc1[myStudent.book1]) ? Math.round(d1/globalToc1[myStudent.book1].length*100) : '미등록';
     var p2 = (myStudent.book2 && globalToc2[myStudent.book2]) ? Math.round(d2/globalToc2[myStudent.book2].length*100) : '미등록';
+    var p3 = (myStudent.book3 && globalToc2[myStudent.book3]) ? Math.round(d3/globalToc2[myStudent.book3].length*100) : '미등록';
+    
     document.getElementById('curri-val').innerText = (p1==='미등록'?p1:p1+'%');
-    document.getElementById('curri-bar').style.strokeDashoffset = (p1==='미등록'?282.7:282.7 - (282.7 * parseInt(p1) / 100));
+    document.getElementById('curri-bar').style.strokeDashoffset = (p1==='미등록'?226.2:226.2 - (226.2 * parseInt(p1) / 100));
+    
     document.getElementById('calc-val').innerText = (p2==='미등록'?p2:p2+'%');
-    document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?282.7:282.7 - (282.7 * parseInt(p2) / 100));
+    document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?226.2:226.2 - (226.2 * parseInt(p2) / 100));
+    
+    document.getElementById('calc2-val').innerText = (p3==='미등록'?p3:p3+'%');
+    document.getElementById('calc2-bar').style.strokeDashoffset = (p3==='미등록'?226.2:226.2 - (226.2 * parseInt(p3) / 100));
   }
 
   function sendSingleSMS(type) {
@@ -449,7 +493,7 @@ function renderReport(nt, ph, cid, title, reaction) {
   }
 
   function startBulkSMS(type) {
-    var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2):s.isBT));
+    var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2||s.book3):s.isBT));
     if(targets.length === 0) return alert("발송 대상이 없습니다.");
     if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
     targets.forEach((s, i) => {
