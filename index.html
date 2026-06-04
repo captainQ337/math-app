@@ -34,22 +34,31 @@
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #EEE;}
     .btn-back { background: #EEE; color: #555; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     
-    .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 20px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
+    .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 25px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
     
-    /* 🌟 글씨 크기를 14px로 키우고, 색상을 진한 회색(#444)으로 변경했습니다. */
-    .tab-btn { flex: 1; padding: 10px 0; background: transparent; border: none; font-size: 14px; cursor: pointer; color: #444; font-weight: 700; border-radius: 10px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); letter-spacing: -0.5px; white-space: nowrap; }
+    /* 🌟 메뉴 탭 글씨 크기 14.5px, 진한 회색(#333), 더 굵게 세팅 */
+    .tab-btn { flex: 1; padding: 12px 0; background: transparent; border: none; font-size: 14.5px; cursor: pointer; color: #333; font-weight: 800; border-radius: 10px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); letter-spacing: -0.5px; white-space: nowrap; }
     .tab-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--primary-color)); color: white; box-shadow: 0 4px 8px rgba(45, 90, 39, 0.35), 0 1px 3px rgba(0,0,0,0.1); transform: translateY(-2px); }
     .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
     
-    .progress-overview { display: flex; justify-content: space-around; background: white; border-radius: 15px; padding: 25px 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #EEE; }
+    /* 🌟 성취도 박스 전체 3D 효과 (뉴모피즘 스타일) */
+    .progress-overview { display: flex; justify-content: space-around; background: #FDFCF8; border-radius: 20px; padding: 30px 5px; box-shadow: 8px 8px 16px #e6e4df, -8px -8px 16px #ffffff; margin-bottom: 20px; }
     .chart-box { text-align: center; width: 45%; transition: width 0.3s ease; } 
-    .chart-box p { font-size: 13px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; }
-    .circle-svg { width: 84px; height: 84px; transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: #E8F5E9; stroke-width: 8; }
-    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
-    .chart-value { position: absolute; width: 84px; line-height: 84px; top: 0; left: 0; font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-dark); }
-    .relative { position: relative; display: inline-block; }
+    
+    /* 🌟 교과, 연산 제목 16px, 가장 진하고 선명하게 */
+    .chart-box p { font-size: 16px; font-weight: 900; color: #222; margin-bottom: 20px; letter-spacing: -0.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+    
+    /* 🌟 동그라미 그래프 3D 볼록 버튼 효과 */
+    .circle-wrap { position: relative; display: inline-flex; justify-content: center; align-items: center; width: 104px; height: 104px; border-radius: 50%; background: #FDFCF8; box-shadow: 5px 5px 10px #e0ded9, -5px -5px 10px #ffffff; }
+    .circle-svg { position: absolute; width: 84px; height: 84px; transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: #EAE8E3; stroke-width: 8; }
+    
+    /* 🌟 진도 막대에 빛나는 그림자 필터 추가 */
+    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.8, 0.25, 1); filter: drop-shadow(0px 2px 4px rgba(76,175,80,0.5)); }
+    
+    /* 🌟 퍼센트(미등록) 글씨 크기 17px, 진하게 */
+    .chart-value { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 800; color: #222; z-index: 2; }
     
     .board-container { border: 1.5px solid var(--primary-color); padding: 15px; border-radius: 12px; background: white; margin-bottom: 20px; }
     .board-title { text-align: center; font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #EEE; }
@@ -122,21 +131,21 @@
       <div class="progress-overview">
         <div class="chart-box" id="box-curri">
           <p>📘 교과</p>
-          <div class="relative">
+          <div class="circle-wrap">
             <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="curri-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="curri-val" class="chart-value">0%</div>
           </div>
         </div>
         <div class="chart-box" id="box-calc">
           <p id="label-calc1">📙 연산</p>
-          <div class="relative">
+          <div class="circle-wrap">
             <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="calc-val" class="chart-value">0%</div>
           </div>
         </div>
         <div class="chart-box" id="box-calc2" style="display:none;">
           <p>📗 연산2</p>
-          <div class="relative">
+          <div class="circle-wrap">
             <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc2-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="calc2-val" class="chart-value">0%</div>
           </div>
