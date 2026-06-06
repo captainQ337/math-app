@@ -5,25 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>책나무최강</title>
   <style>
-    :root { --primary-color: #2D5A27; --accent-color: #4CAF50; --bg-cream: #FDFCF8; --text-dark: #1A1A1A; }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; padding: 0; display: flex; justify-content: center; }
-    .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; }
-    .header { text-align: center; margin-bottom: 25px; padding-top: 20px; }
-    .header img { width: 300px; max-width: 100%; }
-    input[type="text"], textarea { width: 100%; padding: 14px; border: 1px solid #DDD; border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
+    :root { --primary-color: #2D5A27; --accent-color: #4CAF50; --bg-cream: #FDFCF8; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .app-container { width: 100%; max-width: 480px; background-color: var(--bg-cream); padding: 20px; box-sizing: border-box; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 25px; }
+    .header img { width: 250px; max-width: 100%; }
+    input[type="text"], textarea { width: 100%; padding: 14px; border: 1px solid #DDD; border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; }
     .btn-main { width: 100%; padding: 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
-    .btn-bulk { width: 100%; padding: 16px; background-color: #007AFF; color: white; border: none; border-radius: 15px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+    .btn-bulk { width: 100%; padding: 12px; background-color: #007AFF; color: white; border: none; border-radius: 12px; font-weight: bold; margin-bottom: 10px; }
     .hidden { display: none !important; }
+    /* 🌟 달력 스타일 */
     .cal-container { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .cal-month { font-size: 24px; font-weight: 800; }
-    .cal-header-row { display: grid; grid-template-columns: repeat(7, 1fr); background-color: #EBEBEB; border-radius: 8px; padding: 6px 0; margin-bottom: 10px; }
-    .cal-day-name { font-size: 16px; font-weight: 700; text-align: center; }
+    .cal-btn { background: #F3F4F6; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .cal-month { font-size: 20px; font-weight: 800; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 5px; }
+    .cal-day-name { font-size: 14px; font-weight: 700; padding: 10px 0; }
     .sun { color: #E53935; } .sat { color: #1E88E5; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .cal-day { aspect-ratio: 1 / 1.05; background: #FFF; display: flex; flex-direction: column; align-items: center; padding-top: 8px; border-radius: 8px; cursor: pointer; border: 1px solid #EEE; }
-    .day-num { font-size: 20px; font-weight: 700; color: #444; }
-    .holiday .day-num { color: #E53935; } .saturday .day-num { color: #1E88E5; }
+    .cal-day { height: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; border: 1px solid #EEE; }
+    .cal-day.today { background-color: #F0FDF4; border: 2px solid var(--accent-color); }
+    .day-num { font-size: 16px; font-weight: 700; }
     .tabs { display: flex; background: #E8ECE8; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; font-size: 14px; font-weight: 700; border-radius: 8px; }
     .tab-btn.active { background: var(--primary-color); color: white; }
@@ -34,26 +35,63 @@
 <body>
 <div class="app-container">
   <div class="header"><img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800&v=1" alt="로고"></div>
-  <div id="login-screen"><input type="text" id="studentId" placeholder="번호 입력"><button class="btn-main" onclick="doLogin()">SYSTEM LOGIN</button><p id="login-msg" style="text-align:center;"></p></div>
+  
+  <div id="login-screen">
+    <h2 style="text-align:center; color:var(--primary-color);">PREMIUM SYSTEM</h2>
+    <input type="text" id="studentId" placeholder="번호 입력">
+    <button class="btn-main" onclick="doLogin()">SYSTEM LOGIN</button>
+    <p id="login-msg" style="text-align:center;"></p>
+  </div>
+
   <div id="admin-screen" class="hidden">
-    <div class="board-container" style="border-color: #007AFF;"><div class="board-title" style="color: #007AFF;">📢 학원 전체 공지사항 작성</div><textarea id="admin-notice-input" style="height:80px"></textarea><button class="btn-bulk" onclick="saveGlobalNotice()">전체 공지 저장</button></div>
+    <div class="board-container" style="border-color: #007AFF;"><div class="board-title" style="color: #007AFF;">📢 학원 전체 공지사항</div><textarea id="admin-notice-input" style="height:80px"></textarea><button class="btn-bulk" onclick="saveGlobalNotice()">전체 공지 저장</button></div>
     <button class="btn-bulk" onclick="startBulkSMS('MATH')">수학 일괄 문자</button><div id="student-list"></div>
   </div>
+
   <div id="calendar-screen" class="hidden">
     <div class="cal-container"><div class="cal-header"><button class="cal-btn" onclick="changeMonth(-1)">◀</button><div id="cal-month-text" class="cal-month"></div><button class="cal-btn" onclick="changeMonth(1)">▶</button></div>
-    <div class="cal-header-row"><div class="cal-day-name sun">일</div><div class="cal-day-name">월</div><div class="cal-day-name">화</div><div class="cal-day-name">수</div><div class="cal-day-name">목</div><div class="cal-day-name">금</div><div class="cal-day-name sat">토</div></div><div id="cal-days" class="cal-grid"></div></div>
+    <div class="cal-grid"><div class="cal-day-name sun">일</div><div class="cal-day-name">월</div><div class="cal-day-name">화</div><div class="cal-day-name">수</div><div class="cal-day-name">목</div><div class="cal-day-name">금</div><div class="cal-day-name sat">토</div></div><div id="cal-days" class="cal-grid"></div></div>
   </div>
+
   <div id="main-screen" class="hidden">
     <div class="tabs"><button class="tab-btn active" onclick="switchTab('tab-overview')">성취</button><button class="tab-btn" onclick="switchTab('tab-curriculum')">교과</button><button class="tab-btn" onclick="switchTab('tab-calculation')">연산</button><button class="tab-btn" onclick="switchTab('tab-notice')">리포트</button><button class="tab-btn" onclick="switchTab('tab-booktree')">책나무</button></div>
-    <div id="tab-global-notice" class="board-container" style="border-color: #007AFF; display:none;"><div class="board-title" style="color: #007AFF;">📢 학원 전체 공지사항</div><p id="global-notice-content" style="white-space:pre-wrap;"></p></div>
+    <div id="tab-global-notice" class="board-container" style="border-color: #007AFF; display:none;"><div class="board-title" style="color: #007AFF;">📢 학원 전체 공지사항</div><p id="global-notice-content"></p></div>
     <div id="tab-overview" class="tab-content active"></div><div id="tab-curriculum" class="tab-content"></div><div id="tab-calculation" class="tab-content"></div><div id="tab-notice" class="tab-content"></div><div id="tab-booktree" class="tab-content"></div>
   </div>
 </div>
+
 <script>
+  // 🌟 핵심: 아래 주소를 원장님의 실제 배포 주소로 수정하세요!
   const API_URL = "https://script.google.com/macros/s/AKfycbxRNeWtknv3b0We4eubxpENfDZJ3UxIiI1ppMBc7hb0n4jNr8Ea8iQnvOieT8ddBQyu/exec";
-  // (스크립트 로직 생략 - 깃허브에는 원장님의 기존 스크립트 함수들을 그대로 유지해 붙여넣으세요)
-  async function saveGlobalNotice() { var nt = document.getElementById('admin-notice-input').value; const res = await callGoogleScript("saveDailyReport", "GLOBAL", "NOTICE", nt, "", "", ""); if(res.success) alert("✅ 저장완료"); }
-  async function loadGlobalNotice() { const res = await callGoogleScript("authenticateAndGetData", "GLOBAL"); var box = document.getElementById('tab-global-notice'); if(res.success && res.history["NOTICE"]) { box.style.display='block'; document.getElementById('global-notice-content').innerText = res.history["NOTICE"].notice; } }
+  
+  // 기능 함수들
+  async function callGoogleScript(funcName, ...args) {
+    try { const response = await fetch(`${API_URL}?func=${funcName}`, { method: 'POST', body: JSON.stringify(args) }); return await response.json(); }
+    catch(e) { return {success:false, message:e.message}; }
+  }
+
+  async function doLogin() {
+    const id = document.getElementById('studentId').value.trim().toUpperCase();
+    const res = await callGoogleScript("authenticateAndGetData", id);
+    if(res.success) {
+      if(res.role === 'admin') { window.adminStudentList = res.studentList; showPage('admin-screen'); }
+      else { setStudentData(res); loadGlobalNotice(); }
+    } else { document.getElementById('login-msg').innerText = res.message; }
+  }
+
+  async function loadGlobalNotice() {
+    const res = await callGoogleScript("authenticateAndGetData", "GLOBAL");
+    var box = document.getElementById('tab-global-notice');
+    if(res.success && res.history["NOTICE"]?.notice) { box.style.display='block'; document.getElementById('global-notice-content').innerText = res.history["NOTICE"].notice; }
+  }
+
+  async function saveGlobalNotice() { 
+    var nt = document.getElementById('admin-notice-input').value; 
+    const res = await callGoogleScript("saveDailyReport", "GLOBAL", "NOTICE", nt, "", "", ""); 
+    if(res.success) alert("✅ 저장완료"); 
+  }
+
+  // 나머지 기능 로직(renderCalendar, openDailyDashboard 등)은 원장님의 기존 스크립트 내용을 여기에 이어서 붙이세요.
 </script>
 </body>
 </html>
