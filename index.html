@@ -121,13 +121,19 @@
   <div id="admin-screen" class="hidden">
     <h3 style="margin:0 0 15px 0; color:var(--primary-color);">👨‍🏫 원장님 매니저</h3>
 
-    <!-- ★ 추가: 전체 공지 작성 칸 -->
-    <div class="board-container" style="border-color:#FFB300; background:#FFFBF0; margin-bottom:20px;">
-      <div class="board-title" style="color:#E65100; border-bottom-color:#FFE082;">📢 전체 공지 쓰기</div>
-      <textarea id="admin-notice-input" rows="4" placeholder="홍보글, 공지사항 등을 입력하세요. 모든 학생의 달력 하단에 표시됩니다." style="margin-bottom:8px;"></textarea>
-      <button class="btn-main" style="background-color:#E65100;" onclick="saveGlobalNotice()">공지 저장하기</button>
+    <!-- ★ 전체 공지 아코디언 -->
+    <div style="margin-bottom:20px;">
+      <button onclick="toggleNoticePanel()" id="btn-notice-toggle"
+        style="width:100%; padding:14px 18px; background:#FFFBF0; color:#E65100; border:1.5px solid #FFB300; border-radius:12px; font-size:15px; font-weight:800; cursor:pointer; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box;">
+        <span>📢 전체 공지 쓰기</span>
+        <span id="notice-arrow" style="font-size:13px; transition:transform 0.25s;">▼</span>
+      </button>
+      <div id="notice-panel" style="display:none; border:1.5px solid #FFB300; border-top:none; border-radius:0 0 12px 12px; background:#FFFBF0; padding:14px; box-sizing:border-box;">
+        <textarea id="admin-notice-input" rows="4" placeholder="홍보글, 공지사항 등을 입력하세요. 모든 학생의 달력 하단에 표시됩니다." style="margin-bottom:8px;"></textarea>
+        <button class="btn-main" style="background-color:#E65100;" onclick="saveGlobalNotice()">공지 저장하기</button>
+      </div>
     </div>
-    <!-- ★ 추가 끝 -->
+    <!-- ★ 아코디언 끝 -->
 
     <button class="btn-bulk" onclick="startBulkSMS('MATH')">📢 최강수학 보호자 일괄 문자 보내기</button>
     <button class="btn-bulk" style="background-color: var(--accent-color); margin-bottom: 20px;" onclick="startBulkSMS('BT')">📢 책나무 보호자 일괄 문자 보내기</button>
@@ -289,12 +295,23 @@
     }
   }
 
-  // ★ 추가: 전체 공지 저장 (어드민)
+  // ★ 전체 공지 패널 접기/펼치기
+  function toggleNoticePanel() {
+    var panel = document.getElementById('notice-panel');
+    var arrow = document.getElementById('notice-arrow');
+    var btn   = document.getElementById('btn-notice-toggle');
+    var isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    btn.style.borderRadius = isOpen ? '12px' : '12px 12px 0 0';
+  }
+
+  // ★ 전체 공지 저장 (어드민) — 저장 후 패널 자동 닫기
   async function saveGlobalNotice() {
     var nt = document.getElementById('admin-notice-input').value.trim();
     if (!nt) { alert("공지 내용을 입력해주세요."); return; }
     const res = await callGoogleScript("saveDailyReport", "GLOBAL", "NOTICE", nt, "", "", "");
-    if (res.success) { alert("✅ 전체 공지가 저장되었습니다!"); }
+    if (res.success) { alert("✅ 전체 공지가 저장되었습니다!"); toggleNoticePanel(); }
     else { alert("❌ 저장 실패: " + res.message); }
   }
 
