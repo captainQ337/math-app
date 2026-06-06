@@ -18,34 +18,43 @@
     .header img { width: 300px !important; max-width: 100%; height: auto; margin: 0 auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
     input[type="text"], textarea { width: 100%; padding: 14px; border: 1px solid #DDD; border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; font-family: inherit;}
     .btn-main { width: 100%; padding: 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s;}
+    .btn-main:active { transform: scale(0.98); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
     .btn-bulk { width: 100%; padding: 16px; background-color: #007AFF; color: white; border: none; border-radius: 15px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,122,255,0.2); }
     .btn-outline { width: 100%; padding: 14px; background-color: #FFF; color: var(--primary-color); border: 2px dashed var(--primary-color); border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
     .hidden { display: none !important; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #EEE;}
     .btn-back { background: #EEE; color: #555; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     
-    /* 🌟 달력 3D 이미지 레이아웃 및 3D 효과 (여기만 변경됨) */
-    .cal-container { background: white; border-radius: 10px; overflow: hidden; border: 2px solid #D1D5DB; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; }
-    .cal-btn { background: none; border: none; font-size: 20px; color: #555; cursor: pointer; padding: 5px 15px; font-weight: bold; }
-    .cal-month { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 800; color: #005088; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); background-color: #D1D5DB; gap: 1px; border: 1px solid #D1D5DB; text-align: center; }
-    .cal-day-name { padding: 10px 0; font-size: 12px; font-weight: 700; color: white; text-align: center; }
-    .cal-day-name.sun { background-color: #F87171; }
-    .cal-day-name.mon, .cal-day-name.tue, .cal-day-name.wed { background-color: #9CA3AF; }
-    .cal-day-name.thu { background-color: #6B7280; }
-    .cal-day-name.fri { background-color: #10B981; }
-    .cal-day-name.sat { background-color: #1F2937; }
-    .cal-day { aspect-ratio: 1 / 0.9; background: #FFF; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 5px; position: relative; cursor: pointer; transition: all 0.15s ease; box-shadow: inset 1px 1px 0px #fff; }
+    /* 🌟 달력 3D 디자인 및 색감 완벽 교정! */
+    .cal-container { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 15px; background: #fff; }
+    .cal-btn { background: #F3F4F6; border: none; font-size: 18px; color: #4B5563; cursor: pointer; padding: 8px 16px; border-radius: 8px; font-weight: bold; transition: 0.2s; }
+    .cal-btn:active { background: #E5E7EB; transform: scale(0.95); }
+    .cal-month { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px; }
+    
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); background-color: #E5E7EB; gap: 1px; text-align: center; }
+    
+    /* 요일 헤더 색상 논리적 통일 */
+    .cal-day-name { padding: 12px 0; font-size: 13px; font-weight: 700; color: white; text-align: center; letter-spacing: -0.5px; }
+    .cal-day-name.sun { background-color: #E53935; } /* 일요일: 부드러운 빨강 */
+    .cal-day-name.mon, .cal-day-name.tue, .cal-day-name.wed, .cal-day-name.thu, .cal-day-name.fri { background-color: var(--primary-color); } /* 평일: 학원 메인 컬러 딥그린 통일! */
+    .cal-day-name.sat { background-color: #1E88E5; } /* 토요일: 시원한 파랑 */
+
+    /* 날짜 칸 3D 스타일 */
+    .cal-day { aspect-ratio: 1 / 0.95; background: #FFF; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px; position: relative; cursor: pointer; transition: all 0.15s ease; box-shadow: inset 1px 1px 0px #fff; }
     .cal-day:hover { background-color: #F9FAFB; }
     .cal-day:active { transform: scale(0.95); background-color: #E5E7EB; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1); z-index: 10; }
-    .cal-day.empty { background: #F3F4F6; cursor: default; }
-    .cal-day.today { background-color: #EFF6FF; border: 2px solid #3B82F6 !important; z-index: 5; }
-    .cal-day.holiday { color: #EF4444; }
-    .day-num { font-size: 14px; font-weight: 700; }
-    .record-dot { width: 6px; height: 6px; background: var(--status-done); border-radius: 50%; margin: 4px auto 0; }
-    .holiday-text { font-size: 9px; color: #EF4444; font-weight: bold; width: 100%; text-align: center; margin-top: 2px; line-height: 1.1; letter-spacing: -0.5px; }
-    .parent-notif { position: absolute; top: 2px; right: 4px; font-size: 10px; color: red; }
+    .cal-day.empty { background: #F9FAFB; cursor: default; }
+    .cal-day.today { background-color: #F0FDF4; border: 2px solid var(--accent-color) !important; z-index: 5; }
+    
+    /* 날짜 숫자 색상 디테일 */
+    .day-num { font-size: 15px; font-weight: 700; color: #333; margin-left: 2px; }
+    .cal-day.holiday .day-num { color: #E53935; } /* 일/휴강일은 빨간 숫자 */
+    .cal-day.saturday .day-num { color: #1E88E5; } /* 토요일은 파란 숫자 */
+
+    .record-dot { width: 7px; height: 7px; background: var(--status-done); border-radius: 50%; margin: 6px auto 0; box-shadow: 0 2px 4px rgba(128,0,128,0.3); }
+    .holiday-text { font-size: 10px; color: #E53935; font-weight: 800; width: 100%; text-align: center; margin-top: 4px; line-height: 1.1; letter-spacing: -0.5px; }
+    .parent-notif { position: absolute; top: 4px; right: 6px; font-size: 12px; color: red; }
 
     /* 🌟 5개 탭 구조 및 3D 위젯 유지 */
     .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 25px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
@@ -109,7 +118,7 @@
         <button class="cal-btn" onclick="changeMonth(1)">▶</button>
       </div>
       <div class="cal-grid">
-        <div class="cal-day-name sun">일요일</div><div class="cal-day-name mon">월요일</div><div class="cal-day-name tue">화요일</div><div class="cal-day-name wed">수요일</div><div class="cal-day-name thu">목요일</div><div class="cal-day-name fri">금요일</div><div class="cal-day-name sat">토요일</div>
+        <div class="cal-day-name sun">일</div><div class="cal-day-name mon">월</div><div class="cal-day-name tue">화</div><div class="cal-day-name wed">수</div><div class="cal-day-name thu">목</div><div class="cal-day-name fri">금</div><div class="cal-day-name sat">토</div>
       </div>
       <div id="cal-days" class="cal-grid"></div>
     </div>
@@ -140,7 +149,7 @@
           </div>
         </div>
         <div class="chart-box" id="box-calc">
-          <p id="label-calc1">📙 연산</p>
+          <p id="label-calc1">📙 연산1</p>
           <div class="circle-wrap">
             <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="calc-val" class="chart-value">0%</div>
@@ -165,13 +174,12 @@
 </div>
 
 <script>
-  // 🌟 원장님의 기존 API 주소 절대 건드리지 않음!
+  // 🌟 원장님의 기존 API 주소 (절대 건드리지 않음)
   const API_URL = "https://script.google.com/macros/s/AKfycbxRNeWtknv3b0We4eubxpENfDZJ3UxIiI1ppMBc7hb0n4jNr8Ea8iQnvOieT8ddBQyu/exec";
   var currentRole, myStudent, myHistory, todayStr, globalToc1, globalToc2;
   var currentCalYear = 2026, currentCalMonth = 5, selectedDateStr, currentDailyPhoto, currentBTPhoto;
   var colorMap = { 'none': '#FFFFFF', 'done': '#800080', 'ing': '#2D5A27', 'need': '#FFB300' };
   
-  // 🌟 2026년 휴강일 업데이트
   var academyHolidays = [
     "2026-01-01", "2026-02-16", "2026-02-17", "2026-02-18", "2026-03-01", "2026-04-30",
     "2026-05-05", "2026-05-25", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-17",
@@ -231,7 +239,6 @@
     renderCalendar(); showPage('calendar-screen');
   }
 
-  // 🌟 달력 렌더링 로직 (3D 및 휴강일 텍스트 추가됨)
   function renderCalendar() {
     document.getElementById('cal-month-text').innerText = currentCalYear + ". " + String(currentCalMonth).padStart(2,'0');
     var f = new Date(currentCalYear, currentCalMonth-1, 1).getDay();
@@ -242,13 +249,18 @@
     
     for(var i=1; i<=l; i++) {
       var d = currentCalYear + "-" + String(currentCalMonth).padStart(2,'0') + "-" + String(i).padStart(2,'0');
-      var isSun = new Date(currentCalYear, currentCalMonth-1, i).getDay() === 0;
+      var dayOfWeek = new Date(currentCalYear, currentCalMonth-1, i).getDay();
+      var isSun = dayOfWeek === 0;
+      var isSat = dayOfWeek === 6;
       var isHoliday = academyHolidays.includes(d);
       
-      var cn = "cal-day" + (d === todayStr ? " today" : "") + (isSun || isHoliday ? " holiday" : "");
+      // 🌟 CSS 클래스로 날짜 숫자 색상 자동 부여!
+      var cn = "cal-day" + (d === todayStr ? " today" : "");
+      if (isSun || isHoliday) cn += " holiday";
+      else if (isSat) cn += " saturday";
       
       var inner = `<div class="day-num">${i}</div>`;
-      if (isHoliday) inner += `<div class="holiday-text">학원 휴강</div>`;
+      if (isHoliday) inner += `<div class="holiday-text">휴강</div>`;
       if (myHistory[d] && (myHistory[d].notice || myHistory[d].btText)) inner += `<div class="record-dot"></div>`;
       if (myHistory[d] && myHistory[d].reaction) inner += `<span class="parent-notif">🔴</span>`;
       
