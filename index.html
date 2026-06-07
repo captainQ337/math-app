@@ -176,7 +176,8 @@
     
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('tab-overview')">성취</button>
-      <button class="tab-btn" onclick="switchTab('tab-curriculum')">교과</button>
+      <button class="tab-btn" onclick="switchTab('tab-curriculum')" id="tab-name-curri">교과</button>
+      <button class="tab-btn" id="btn-tab-curri2" style="display:none;" onclick="switchTab('tab-curriculum2')">교과2</button>
       <button class="tab-btn" onclick="switchTab('tab-calculation')" id="tab-name-calc1">연산</button>
       <button class="tab-btn" id="btn-tab-calc2" style="display:none;" onclick="switchTab('tab-calculation2')">연산2</button>
       <button class="tab-btn" onclick="switchTab('tab-notice')">리포트</button>
@@ -186,10 +187,17 @@
     <div id="tab-overview" class="tab-content active">
       <div class="progress-overview">
         <div class="chart-box" id="box-curri">
-          <p>📘 교과</p>
+          <p id="label-curri1">📘 교과</p>
           <div class="circle-wrap">
             <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="curri-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
             <div id="curri-val" class="chart-value">0%</div>
+          </div>
+        </div>
+        <div class="chart-box" id="box-curri2" style="display:none;">
+          <p>📗 교과2</p>
+          <div class="circle-wrap">
+            <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="curri2-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
+            <div id="curri2-val" class="chart-value">0%</div>
           </div>
         </div>
         <div class="chart-box" id="box-calc">
@@ -210,6 +218,7 @@
     </div>
     
     <div id="tab-curriculum" class="tab-content"></div>
+    <div id="tab-curriculum2" class="tab-content"></div>
     <div id="tab-calculation" class="tab-content"></div>
     <div id="tab-calculation2" class="tab-content"></div>
     <div id="tab-notice" class="tab-content"></div>
@@ -358,27 +367,36 @@
       if (targetStu) targetStu.hasNew = false;
     }
 
-    var hasCalc2 = (myStudent.book3 && myStudent.book3.trim() !== "");
-    if (hasCalc2) {
-      document.getElementById('btn-tab-calc2').style.display = 'block';
-      document.getElementById('box-calc2').style.display = 'inline-block';
-      document.getElementById('box-curri').style.width = '32%';
-      document.getElementById('box-calc').style.width = '32%';
-      document.getElementById('tab-name-calc1').innerText = '연산1';
-      document.getElementById('label-calc1').innerText = '📙 연산1';
-    } else {
-      document.getElementById('btn-tab-calc2').style.display = 'none';
-      document.getElementById('box-calc2').style.display = 'none';
-      document.getElementById('box-curri').style.width = '45%';
-      document.getElementById('box-calc').style.width = '45%';
-      document.getElementById('tab-name-calc1').innerText = '연산진도';
-      document.getElementById('label-calc1').innerText = '📙 연산';
-    }
+    var hasCurri2 = (myStudent.book4 && myStudent.book4.trim() !== "");
+    var hasCalc2  = (myStudent.book3 && myStudent.book3.trim() !== "");
 
-    renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, '📘 교과진도');
-    renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '📙 연산진도 1' : '📙 연산진도');
-    if (hasCalc2) { renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '📗 연산진도 2'); }
-    else { document.getElementById('tab-calculation2').innerHTML = ""; }
+    // 교과2 탭/차트 표시 여부
+    document.getElementById('btn-tab-curri2').style.display = hasCurri2 ? 'block' : 'none';
+    document.getElementById('box-curri2').style.display    = hasCurri2 ? 'inline-block' : 'none';
+
+    // 연산2 탭/차트 표시 여부
+    document.getElementById('btn-tab-calc2').style.display = hasCalc2 ? 'block' : 'none';
+    document.getElementById('box-calc2').style.display     = hasCalc2 ? 'inline-block' : 'none';
+
+    // 레이블 조정
+    document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과1' : '📘 교과';
+    document.getElementById('tab-name-calc1').innerText = hasCalc2 ? '연산1' : '연산진도';
+    document.getElementById('label-calc1').innerText    = hasCalc2 ? '📙 연산1' : '📙 연산';
+
+    // 차트 박스 너비 — 표시되는 원 개수에 따라 자동 조정
+    var visibleCount = 2 + (hasCurri2 ? 1 : 0) + (hasCalc2 ? 1 : 0);
+    var w = visibleCount >= 4 ? '23%' : visibleCount === 3 ? '30%' : '45%';
+    document.getElementById('box-curri').style.width  = w;
+    document.getElementById('box-curri2').style.width = w;
+    document.getElementById('box-calc').style.width   = w;
+    document.getElementById('box-calc2').style.width  = w;
+
+    renderTab('tab-curriculum',  myStudent.book1, myStudent.baseProg1, globalToc1, hasCurri2 ? '📘 교과진도 1' : '📘 교과진도');
+    renderTab('tab-curriculum2', myStudent.book4, myStudent.baseProg4, globalToc1, '📗 교과진도 2');
+    renderTab('tab-calculation',  myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '📙 연산진도 1' : '📙 연산진도');
+    renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '📗 연산진도 2');
+    if (!hasCurri2) document.getElementById('tab-curriculum2').innerHTML = "";
+    if (!hasCalc2)  document.getElementById('tab-calculation2').innerHTML = "";
     
     renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
@@ -462,12 +480,13 @@
             : 'done';
     el.style.backgroundColor = colorMap[nxt];
     
-    if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt;
+    if(cid === 'tab-curriculum')  myStudent.baseProg1[idx] = nxt;
+    else if(cid === 'tab-curriculum2') myStudent.baseProg4[idx] = nxt;
     else if(cid === 'tab-calculation') myStudent.baseProg2[idx] = nxt;
     else if(cid === 'tab-calculation2') myStudent.baseProg3[idx] = nxt;
     
     updateProgressCircles();
-    await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3, myStudent.c1, myStudent.c2, myStudent.c3);
+    await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3, myStudent.c1, myStudent.c2, myStudent.c3, myStudent.baseProg4, myStudent.c4);
   }
 
   function handleImg(e, type) {
@@ -511,25 +530,27 @@
   }
 
   function updateProgressCircles() {
-    var bp1 = myStudent.baseProg1 || []; var bp2 = myStudent.baseProg2 || []; var bp3 = myStudent.baseProg3 || [];
+    var bp1 = myStudent.baseProg1 || []; var bp2 = myStudent.baseProg2 || [];
+    var bp3 = myStudent.baseProg3 || []; var bp4 = myStudent.baseProg4 || [];
     var t1 = (myStudent.book1 && globalToc1[myStudent.book1]) ? globalToc1[myStudent.book1].length : 0;
     var t2 = (myStudent.book2 && globalToc2[myStudent.book2]) ? globalToc2[myStudent.book2].length : 0;
     var t3 = (myStudent.book3 && globalToc2[myStudent.book3]) ? globalToc2[myStudent.book3].length : 0;
-    
-    var d1 = bp1.slice(0, t1).filter(x=>x==='done').length;
-    var d2 = bp2.slice(0, t2).filter(x=>x==='done').length;
-    var d3 = bp3.slice(0, t3).filter(x=>x==='done').length;
-    
-    var p1 = t1 > 0 ? Math.min(100, Math.round((d1/t1)*100)) : '미등록';
-    var p2 = t2 > 0 ? Math.min(100, Math.round((d2/t2)*100)) : '미등록';
-    var p3 = t3 > 0 ? Math.min(100, Math.round((d3/t3)*100)) : '미등록';
-    
-    document.getElementById('curri-val').innerText = (p1==='미등록'?p1:p1+'%');
-    document.getElementById('curri-bar').style.strokeDashoffset = (p1==='미등록'?226.2:226.2 - (226.2 * p1 / 100));
-    document.getElementById('calc-val').innerText = (p2==='미등록'?p2:p2+'%');
-    document.getElementById('calc-bar').style.strokeDashoffset = (p2==='미등록'?226.2:226.2 - (226.2 * p2 / 100));
-    document.getElementById('calc2-val').innerText = (p3==='미등록'?p3:p3+'%');
-    document.getElementById('calc2-bar').style.strokeDashoffset = (p3==='미등록'?226.2:226.2 - (226.2 * p3 / 100));
+    var t4 = (myStudent.book4 && globalToc1[myStudent.book4]) ? globalToc1[myStudent.book4].length : 0;
+
+    function calcPct(bp, t) {
+      if (t === 0) return '미등록';
+      var d = bp.slice(0, t).filter(function(x){ return x==='done'; }).length;
+      return Math.min(100, Math.round((d/t)*100));
+    }
+    function setCircle(valId, barId, p) {
+      document.getElementById(valId).innerText = (p==='미등록' ? p : p+'%');
+      document.getElementById(barId).style.strokeDashoffset = (p==='미등록' ? 226.2 : 226.2 - (226.2 * p / 100));
+    }
+
+    setCircle('curri-val',  'curri-bar',  calcPct(bp1, t1));
+    setCircle('curri2-val', 'curri2-bar', calcPct(bp4, t4));
+    setCircle('calc-val',   'calc-bar',   calcPct(bp2, t2));
+    setCircle('calc2-val',  'calc2-bar',  calcPct(bp3, t3));
   }
 
   function sendSingleSMS(type) {
