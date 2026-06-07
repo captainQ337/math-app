@@ -32,7 +32,7 @@
     .cal-btn:active { transform: scale(0.85); color: #333; }
     .cal-month { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #222; letter-spacing: -0.5px; }
     .cal-header-row { display: grid; grid-template-columns: repeat(7, 1fr); background-color: #EBEBEB; border-radius: 8px; padding: 4px 0; margin-bottom: 6px; }
-    .cal-day-name { font-size: 13px; font-weight: 700; text-align: center; }
+    .cal-day-name { font-size: 11px; font-weight: 700; text-align: center; }
     .cal-day-name.sun { color: #E53935; }
     .cal-day-name.mon, .cal-day-name.tue, .cal-day-name.wed, .cal-day-name.thu, .cal-day-name.fri { color: #555555; }
     .cal-day-name.sat { color: #1E88E5; }
@@ -42,7 +42,7 @@
     .cal-day:active { transform: scale(0.92); background-color: #F3F4F6; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.08); z-index: 10; }
     .cal-day.empty { background: transparent; cursor: default; }
     .cal-day.today { background-color: #F0FDF4; border: 2px solid var(--accent-color) !important; z-index: 5; }
-    .day-num { font-size: 16px; font-weight: 500; color: #444; }
+    .day-num { font-size: 13px; font-weight: 600; color: #444; }
     .cal-day.holiday .day-num { color: #E53935; }
     .cal-day.saturday .day-num { color: #1E88E5; }
     .record-dot { width: 6px; height: 6px; background: var(--status-done); border-radius: 50%; margin-top: 4px; box-shadow: 0 2px 4px rgba(128,0,128,0.2); }
@@ -389,7 +389,7 @@
   function renderTab(cid, bn, pa, tM, title) {
     if (!bn || bn.trim() === "") { document.getElementById(cid).innerHTML = '<div class="board-container"><div class="board-title">'+title+'</div><p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p></div>'; return; }
     var ch = tM[bn]||[], h = '<div class="legend"><div class="legend-item"><div class="l-box"></div>학습 전</div><div class="legend-item"><div class="l-box" style="background:var(--status-done)"></div>잘 이해했어요</div><div class="legend-item"><div class="l-box" style="background:var(--status-ing)"></div>이해하는 중이에요</div><div class="legend-item"><div class="l-box" style="background:var(--status-need)"></div>시간이 필요해요</div></div><div class="board-container"><div class="board-title">'+title+' ('+bn+')</div>';
-    ch.forEach((c, idx) => { h += '<div class="progress-item"><span>'+c+'</span><div class="status-box" style="background-color:'+colorMap[pa[idx]||'none']+'" onclick="toggleStatus('+idx+',this,\''+cid+'\')"></div></div>'; });
+    ch.forEach((c, idx) => { var st = pa[idx]; var stKey = (!st || st === 'null' || st === null) ? 'none' : st; h += '<div class="progress-item"><span>'+c+'</span><div class="status-box" style="background-color:'+colorMap[stKey]+'" onclick="toggleStatus('+idx+',this,\''+cid+'\')"></div></div>'; });
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
@@ -454,7 +454,12 @@
   async function toggleStatus(idx, el, cid) {
     if(currentRole !== 'admin') return;
     var cur = el.style.backgroundColor;
-    var nxt = cur.includes('rgb(255, 255, 255)') ? 'done' : (cur.includes('rgb(128, 0, 128)') ? 'ing' : (cur.includes('rgb(45, 90, 39)') ? 'need' : 'none'));
+    // null/undefined/white → done → ing → need → none 순환
+    var nxt = (cur === '' || cur.includes('rgb(255, 255, 255)') || !cur) ? 'done'
+            : cur.includes('rgb(128, 0, 128)') ? 'ing'
+            : cur.includes('rgb(45, 90, 39)') ? 'need'
+            : cur.includes('rgb(255, 179, 0)') ? 'none'
+            : 'done';
     el.style.backgroundColor = colorMap[nxt];
     
     if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt;
