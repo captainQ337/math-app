@@ -602,10 +602,10 @@
     if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
     
     // ★ 실제 운영하시는 깃허브 웹앱 주소로 변경해주세요. (끝에 / 포함)
-    var APP_LINK = "https://[원장님의_깃허브_주소].github.io/"; 
+    var APP_LINK = "https://captainq337.github.io/math-app/?v=success";
     
     targets.forEach((s, i) => {
-      var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id + "\n\n▶ 확인하기:\n" + APP_LINK;
+    var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id + "\n\n▶ 확인하기:\n" + APP_LINK;
       setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
     });
   }
