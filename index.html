@@ -289,11 +289,10 @@
     var p = todayStr.split('-'); currentCalYear = parseInt(p[0]); currentCalMonth = parseInt(p[1]);
     document.getElementById('cal-welcome-msg').innerText = "🌿 " + myStudent.name + " 학습 기록";
     renderCalendar();
-    loadGlobalNotice(); // ★ 추가: 학생 로그인 시 공지 자동 로드
+    loadGlobalNotice(); 
     showPage('calendar-screen');
   }
 
-  // ★ 추가: 전체 공지 불러오기 (달력 하단 표시)
   async function loadGlobalNotice() {
     const res = await callGoogleScript("authenticateAndGetData", "GLOBAL");
     var box = document.getElementById('global-notice-box');
@@ -306,7 +305,6 @@
     }
   }
 
-  // ★ 전체 공지 패널 접기/펼치기
   function toggleNoticePanel() {
     var panel = document.getElementById('notice-panel');
     var arrow = document.getElementById('notice-arrow');
@@ -317,7 +315,6 @@
     btn.style.borderRadius = isOpen ? '12px' : '12px 12px 0 0';
   }
 
-  // ★ 전체 공지 저장 (어드민) — 저장 후 패널 자동 닫기
   async function saveGlobalNotice() {
     var nt = document.getElementById('admin-notice-input').value.trim();
     if (!nt) { alert("공지 내용을 입력해주세요."); return; }
@@ -370,20 +367,15 @@
     var hasCurri2 = (myStudent.book4 && myStudent.book4.trim() !== "");
     var hasCalc2  = (myStudent.book3 && myStudent.book3.trim() !== "");
 
-    // 교과2 탭/차트 표시 여부
     document.getElementById('btn-tab-curri2').style.display = hasCurri2 ? 'block' : 'none';
     document.getElementById('box-curri2').style.display    = hasCurri2 ? 'inline-block' : 'none';
-
-    // 연산2 탭/차트 표시 여부
     document.getElementById('btn-tab-calc2').style.display = hasCalc2 ? 'block' : 'none';
     document.getElementById('box-calc2').style.display     = hasCalc2 ? 'inline-block' : 'none';
 
-    // 레이블 조정
     document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과1' : '📘 교과';
     document.getElementById('tab-name-calc1').innerText = hasCalc2 ? '연산1' : '연산진도';
     document.getElementById('label-calc1').innerText    = hasCalc2 ? '📙 연산1' : '📙 연산';
 
-    // 차트 박스 너비 — 표시되는 원 개수에 따라 자동 조정
     var visibleCount = 2 + (hasCurri2 ? 1 : 0) + (hasCalc2 ? 1 : 0);
     var w = visibleCount >= 4 ? '23%' : visibleCount === 3 ? '30%' : '45%';
     document.getElementById('box-curri').style.width  = w;
@@ -416,15 +408,23 @@
     if(currentRole === 'admin') {
       if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
       h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-r" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'R\')">✨ AI로 다듬기</button></div>';
-      h += '<textarea id="notice-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" onchange="handleImg(event,\'R\')">';
+      h += '<textarea id="notice-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea>';
+      
+      h += '<input type="file" id="f-up1" style="display:none;" multiple onchange="handleImg(event,\'R\')">'; 
+      
       if(ph) {
-        h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
-        h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'R\')">🗑️ 사진 삭제 (다시 올리기)</button>';
-      } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부</button>'; }
-      h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
+        var phArr = ph.split(',');
+        phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
+        h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'R\')">🗑️ 사진 전체 삭제 (다시 올리기)</button>';
+      } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부 (여러장 가능)</button>'; }
+      
+      h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
     } else {
       h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
-      if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
+      if(ph) {
+        var phArr = ph.split(',');
+        phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+      }
       h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
     } document.getElementById(cid).innerHTML = h + '</div>';
   }
@@ -436,15 +436,23 @@
       if(currentRole === 'admin') {
         if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
         h += '<div style="text-align:right; margin-bottom:5px;"><button id="btn-ai-b" style="background:#F3E5F5; color:#8E24AA; border:1px solid #CE93D8; padding:6px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="refineWithAI(\'B\')">✨ AI로 다듬기</button></div>';
-        h += '<textarea id="bt-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" onchange="handleImg(event,\'B\')">';
+        h += '<textarea id="bt-input" style="height:100px" placeholder="리포트 초안을 대충 적고 위 ✨AI 버튼을 눌러보세요!">'+nt+'</textarea>';
+        
+        h += '<input type="file" id="f-up2" style="display:none;" multiple onchange="handleImg(event,\'B\')">';
+        
         if(ph) {
-          h += '<img src="'+ph+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">';
-          h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'B\')">🗑️ 책나무 사진 삭제 (다시 올리기)</button>';
-        } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부</button>'; }
-        h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button><button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
+          var phArr = ph.split(',');
+          phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
+          h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'B\')">🗑️ 책나무 사진 전체 삭제 (다시 올리기)</button>';
+        } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부 (여러장 가능)</button>'; }
+        
+        h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
       } else {
         h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
-        if(ph) h += '<img src="'+ph+'" style="width:100%; border-radius:8px;">';
+        if(ph) {
+          var phArr = ph.split(',');
+          phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; border-radius:8px;">'; });
+        }
         h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
       }
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
@@ -464,7 +472,7 @@
   }
 
   function deletePhoto(type) {
-    if(!confirm("사진을 삭제하시겠습니까?")) return;
+    if(!confirm("해당 리포트의 사진을 모두 삭제하시겠습니까?")) return;
     if(type === 'R') currentDailyPhoto = ""; else currentBTPhoto = "";
     saveAllData(); setTimeout(() => openDailyDashboard(selectedDateStr), 500);
   }
@@ -472,7 +480,6 @@
   async function toggleStatus(idx, el, cid) {
     if(currentRole !== 'admin') return;
     var cur = el.style.backgroundColor;
-    // null/undefined/white → done → ing → need → none 순환
     var nxt = (cur === '' || cur.includes('rgb(255, 255, 255)') || !cur) ? 'done'
             : cur.includes('rgb(128, 0, 128)') ? 'ing'
             : cur.includes('rgb(45, 90, 39)') ? 'need'
@@ -489,31 +496,67 @@
     await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3, myStudent.c1, myStudent.c2, myStudent.c3, myStudent.baseProg4, myStudent.c4);
   }
 
-  function handleImg(e, type) {
-    var f = e.target.files[0]; if(!f) return;
+  async function handleImg(e, type) {
+    var files = e.target.files; 
+    if (!files || files.length === 0) return;
+    
     var targetBtn = e.target.nextElementSibling;
-    var originalText = type === 'R' ? "+ 📸 사진 첨부" : "+ 📸 책나무 사진 첨부";
-    if(targetBtn) { targetBtn.innerText = "⏳ 사진 올리는 중..."; targetBtn.style.backgroundColor = "#E8ECE8"; targetBtn.disabled = true; }
-    var r = new FileReader();
-    r.onload = function(ev) {
-      var img = new Image();
-      img.onload = async function() {
-        var canvas = document.createElement("canvas"); var ctx = canvas.getContext("2d");
-        var maxW = 800; var maxH = 800; var width = img.width; var height = img.height;
-        if (width > height) { if (width > maxW) { height *= maxW / width; width = maxW; } } else { if (height > maxH) { width *= maxH / height; height = maxH; } }
-        canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
-        var dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-        try {
-          const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, f.name);
-          if(res.success) {
-            if(type === 'R') currentDailyPhoto = res.url; else currentBTPhoto = res.url;
-            await saveAllData();
-            if(targetBtn) { targetBtn.innerText = "✅ 업로드 완료!"; targetBtn.style.backgroundColor = "#FFF"; }
-            setTimeout(() => openDailyDashboard(selectedDateStr), 500);
-          } else { alert("❌ 구글 서버 거절 사유:\n" + res.message); if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; } }
-        } catch(err) { alert("❌ 스마트폰 통신 에러:\n" + err.message); if(targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; } }
-      }; img.src = ev.target.result;
-    }; r.readAsDataURL(f);
+    var originalText = type === 'R' ? "+ 📸 사진 첨부 (여러장 가능)" : "+ 📸 책나무 사진 첨부 (여러장 가능)";
+    
+    if (targetBtn) { 
+      targetBtn.innerText = "⏳ 사진 " + files.length + "장 올리는 중..."; 
+      targetBtn.style.backgroundColor = "#E8ECE8"; 
+      targetBtn.disabled = true; 
+    }
+
+    const processSingleFile = (file) => {
+      return new Promise((resolve, reject) => {
+        var r = new FileReader();
+        r.onload = function(ev) {
+          var img = new Image();
+          img.onload = async function() {
+            var canvas = document.createElement("canvas"); var ctx = canvas.getContext("2d");
+            var maxW = 800, maxH = 800, width = img.width, height = img.height;
+            if (width > height) { if (width > maxW) { height *= maxW / width; width = maxW; } } 
+            else { if (height > maxH) { width *= maxH / height; height = maxH; } }
+            canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+            var dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            
+            try {
+              const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, file.name);
+              if(res.success) resolve(res.url); else reject(res.message);
+            } catch(err) { reject(err.message); }
+          }; 
+          img.src = ev.target.result;
+        }; 
+        r.readAsDataURL(file);
+      });
+    };
+
+    try {
+      var uploadedUrls = [];
+      for (var i = 0; i < files.length; i++) {
+        var url = await processSingleFile(files[i]);
+        uploadedUrls.push(url);
+      }
+      
+      var finalUrls = uploadedUrls.join(',');
+      
+      if (type === 'R') {
+        currentDailyPhoto = currentDailyPhoto ? currentDailyPhoto + ',' + finalUrls : finalUrls; 
+      } else {
+        currentBTPhoto = currentBTPhoto ? currentBTPhoto + ',' + finalUrls : finalUrls;
+      }
+      
+      await saveAllData();
+      
+      if (targetBtn) { targetBtn.innerText = "✅ 업로드 완료!"; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
+      setTimeout(() => openDailyDashboard(selectedDateStr), 500);
+      
+    } catch (err) {
+      alert("❌ 업로드 에러:\n" + err); 
+      if (targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
+    }
   }
 
   async function saveAllData() {
@@ -553,18 +596,16 @@
     setCircle('calc2-val',  'calc2-bar',  calcPct(bp3, t3));
   }
 
-  function sendSingleSMS(type) {
-    if(!myStudent.phone) return alert("연락처가 없습니다.");
-    var msg = "🌿 책나무최강수학 알림\n" + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id;
-    window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
-  }
-
   function startBulkSMS(type) {
     var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2||s.book3):s.isBT));
     if(targets.length === 0) return alert("발송 대상이 없습니다.");
     if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
+    
+    // ★ 실제 운영하시는 깃허브 웹앱 주소로 변경해주세요. (끝에 / 포함)
+    var APP_LINK = "https://[원장님의_깃허브_주소].github.io/"; 
+    
     targets.forEach((s, i) => {
-      var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id;
+      var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id + "\n\n▶ 확인하기:\n" + APP_LINK;
       setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
     });
   }
