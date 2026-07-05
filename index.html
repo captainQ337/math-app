@@ -134,6 +134,7 @@
         <button class="btn-main" style="background-color:#E65100;" onclick="saveGlobalNotice()">공지 저장하기</button>
       </div>
     </div>
+
     <button class="btn-bulk" onclick="startBulkSMS('MATH')">📢 최강수학 보호자 일괄 문자 보내기</button>
     <button class="btn-bulk" style="background-color: var(--accent-color); margin-bottom: 20px;" onclick="startBulkSMS('BT')">📢 책나무 보호자 일괄 문자 보내기</button>
     <div id="student-list"></div>
@@ -161,7 +162,7 @@
       <div class="notice-label">📢 알림</div>
       <p id="global-notice-content" class="notice-text"></p>
     </div>
-    </div>
+  </div>
 
   <div id="main-screen" class="hidden">
     <div class="top-bar">
@@ -385,7 +386,7 @@
     if (!hasCurri2) document.getElementById('tab-curriculum2').innerHTML = "";
     if (!hasCalc2)  document.getElementById('tab-calculation2').innerHTML = "";
     
-    renderReport(r.notice, r.photo, 'tab-notice', '학습 리포트', r.reaction);
+    renderReport(r.notice, r.photo, 'tab-notice', '수학 학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
     
     updateProgressCircles(); switchTab('tab-overview');
@@ -398,6 +399,7 @@
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
+  // ★ 수학 리포트: 사진을 여러 장 올린 후에도 [사진 추가] 버튼 유지
   function renderReport(nt, ph, cid, title, reaction) {
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
@@ -410,11 +412,18 @@
       if(ph) {
         var phArr = ph.split(',');
         phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
-        h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'R\')">🗑️ 사진 전체 삭제 (다시 올리기)</button>';
-      } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부 (여러장 가능)</button>'; }
+        
+        // 사진이 있을 때: [추가하기]와 [전체 삭제]를 나란히 보여줌
+        h += '<div style="display:flex; gap:10px; margin-top:10px;">';
+        h += '<button class="btn-outline" style="flex:1;" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 추가</button>';
+        h += '<button class="btn-outline" style="flex:1; color:#E53935; border-color:#E53935;" onclick="deletePhoto(\'R\')">🗑️ 전체 삭제</button>';
+        h += '</div>';
+      } else { 
+        // 사진이 없을 때: 기존 첨부 버튼
+        h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부 (여러장 가능)</button>'; 
+      }
       
       h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
-      // ★ 개별 문자 보내기 버튼 부활
       h += '<button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
     } else {
       h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -426,6 +435,7 @@
     } document.getElementById(cid).innerHTML = h + '</div>';
   }
 
+  // ★ 책나무 리포트: 사진을 여러 장 올린 후에도 [사진 추가] 버튼 유지
   function renderBookTree(nt, ph, reaction) {
     var h = '<div class="board-container"><div class="board-title">책나무 국어논술 리포트</div>';
     if(!myStudent.isBT) { h += '<p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p>'; }
@@ -440,11 +450,18 @@
         if(ph) {
           var phArr = ph.split(',');
           phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
-          h += '<button class="btn-outline" style="color:#E53935; border-color:#E53935; margin-top:10px;" onclick="deletePhoto(\'B\')">🗑️ 책나무 사진 전체 삭제 (다시 올리기)</button>';
-        } else { h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부 (여러장 가능)</button>'; }
+          
+          // 사진이 있을 때: [추가하기]와 [전체 삭제]를 나란히 보여줌
+          h += '<div style="display:flex; gap:10px; margin-top:10px;">';
+          h += '<button class="btn-outline" style="flex:1;" onclick="document.getElementById(\'f-up2\').click()">+ 📸 사진 추가</button>';
+          h += '<button class="btn-outline" style="flex:1; color:#E53935; border-color:#E53935;" onclick="deletePhoto(\'B\')">🗑️ 전체 삭제</button>';
+          h += '</div>';
+        } else { 
+          // 사진이 없을 때: 기존 첨부 버튼
+          h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부 (여러장 가능)</button>'; 
+        }
         
         h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
-        // ★ 개별 문자 보내기 버튼 부활
         h += '<button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
       } else {
         h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
@@ -595,7 +612,6 @@
     setCircle('calc2-val',  'calc2-bar',  calcPct(bp3, t3));
   }
 
-  // ★ 개별 문자 발송 함수 부활 (링크 포함)
   function sendSingleSMS(type) {
     if(!myStudent.phone) return alert("연락처가 없습니다.");
     
