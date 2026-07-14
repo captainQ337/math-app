@@ -366,18 +366,29 @@
     document.getElementById('btn-tab-curri2').style.display = hasCurri2 ? 'block' : 'none';
     document.getElementById('box-curri2').style.display    = hasCurri2 ? 'inline-block' : 'none';
     document.getElementById('btn-tab-calc2').style.display = hasCalc2 ? 'block' : 'none';
-    document.getElementById('box-calc2').style.display     = hasCalc2 ? 'inline-block' : 'none';
+    
+    // ⭐ 변경: 연산2 그래프 원은 숨기고, 합산된 1개의 원만 사용
+    document.getElementById('box-calc2').style.display     = 'none';
 
     document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과1' : '📘 교과';
     document.getElementById('tab-name-calc1').innerText = hasCalc2 ? '연산1' : '연산진도';
-    document.getElementById('label-calc1').innerText    = hasCalc2 ? '📙 연산1' : '📙 연산';
+    
+    // ⭐ 변경: 교재명 맨 앞자리 숫자를 추출하여 'O학년연산'으로 이름 변경
+    var calcGradeName = "연산";
+    if (myStudent.book2 && myStudent.book2.trim() !== "") {
+      var firstChar = myStudent.book2.trim().charAt(0);
+      if (!isNaN(firstChar) && firstChar !== " ") {
+        calcGradeName = firstChar + "학년연산";
+      }
+    }
+    document.getElementById('label-calc1').innerText = '📙 ' + calcGradeName;
 
-    var visibleCount = 2 + (hasCurri2 ? 1 : 0) + (hasCalc2 ? 1 : 0);
-    var w = visibleCount >= 4 ? '23%' : visibleCount === 3 ? '30%' : '45%';
+    // ⭐ 변경: 화면에 보여지는 그래프 개수에 맞춰 비율 자동 조정 (box-calc2가 빠지므로 최대 3개)
+    var visibleCount = 2 + (hasCurri2 ? 1 : 0);
+    var w = visibleCount >= 3 ? '30%' : '45%';
     document.getElementById('box-curri').style.width  = w;
     document.getElementById('box-curri2').style.width = w;
     document.getElementById('box-calc').style.width   = w;
-    document.getElementById('box-calc2').style.width  = w;
 
     renderTab('tab-curriculum',  myStudent.book1, myStudent.baseProg1, globalToc1, hasCurri2 ? '📘 교과진도 1' : '📘 교과진도');
     renderTab('tab-curriculum2', myStudent.book4, myStudent.baseProg4, globalToc1, '📗 교과진도 2');
@@ -601,15 +612,28 @@
       var d = bp.slice(0, t).filter(function(x){ return x==='done'; }).length;
       return Math.min(100, Math.round((d/t)*100));
     }
+    
     function setCircle(valId, barId, p) {
       document.getElementById(valId).innerText = (p==='미등록' ? p : p+'%');
       document.getElementById(barId).style.strokeDashoffset = (p==='미등록' ? 226.2 : 226.2 - (226.2 * p / 100));
     }
 
+    // ⭐ 변경: 연산 교재(t2, t3)가 2개일 경우 통합하여 진도율 계산
+    var calcCombinedTotal = t2 + t3;
+    var calcCombinedDone = 0;
+    if (t2 > 0) calcCombinedDone += bp2.slice(0, t2).filter(function(x){ return x==='done'; }).length;
+    if (t3 > 0) calcCombinedDone += bp3.slice(0, t3).filter(function(x){ return x==='done'; }).length;
+    
+    var calcCombinedPct = '미등록';
+    if (calcCombinedTotal > 0) {
+      calcCombinedPct = Math.min(100, Math.round((calcCombinedDone / calcCombinedTotal) * 100));
+    }
+
     setCircle('curri-val',  'curri-bar',  calcPct(bp1, t1));
     setCircle('curri2-val', 'curri2-bar', calcPct(bp4, t4));
-    setCircle('calc-val',   'calc-bar',   calcPct(bp2, t2));
-    setCircle('calc2-val',  'calc2-bar',  calcPct(bp3, t3));
+    
+    // ⭐ 변경: 합산된 퍼센트를 첫 번째 연산 원형 그래프에 적용
+    setCircle('calc-val',   'calc-bar',   calcCombinedPct);
   }
 
   function sendSingleSMS(type) {
