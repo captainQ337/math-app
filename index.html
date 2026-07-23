@@ -49,33 +49,14 @@
     .holiday-text { font-size: 8px; color: #E53935; font-weight: 700; width: 100%; text-align: center; margin-top: 1px; line-height: 1.1; letter-spacing: -0.5px; }
     .parent-notif { position: absolute; top: 4px; right: 6px; font-size: 12px; color: red; }
 
-    /* ★ 전체 공지 박스 (달력 하단) */
+    /* ★ 전체 공지 박스 */
     .global-notice-box {
-      margin-top: 16px;
-      background: #FFFBF0;
-      border: 2px solid #FFB300;
-      border-radius: 16px;
-      padding: 20px 20px 22px;
-      box-shadow: 0 4px 14px rgba(255,179,0,0.15);
+      margin-top: 16px; background: #FFFBF0; border: 2px solid #FFB300; border-radius: 16px; padding: 20px 20px 22px; box-shadow: 0 4px 14px rgba(255,179,0,0.15);
     }
     .global-notice-box .notice-label {
-      font-size: 15px;
-      font-weight: 900;
-      color: #E65100;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-bottom: 10px;
-      border-bottom: 1.5px dashed #FFD580;
+      font-size: 15px; font-weight: 900; color: #E65100; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1.5px dashed #FFD580;
     }
-    .global-notice-box .notice-text {
-      font-size: 15px;
-      line-height: 1.9;
-      color: #333;
-      white-space: pre-wrap;
-      margin: 0;
-    }
+    .global-notice-box .notice-text { font-size: 15px; line-height: 1.9; color: #333; white-space: pre-wrap; margin: 0; }
 
     /* 탭 */
     .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 25px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
@@ -84,7 +65,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
     
-    .progress-overview { display: flex; justify-content: space-around; background: #FDFCF8; border-radius: 20px; padding: 30px 5px; box-shadow: 8px 8px 16px #e6e4df, -8px -8px 16px #ffffff; margin-bottom: 20px; }
+    .progress-overview { display: flex; justify-content: space-around; background: #FDFCF8; border-radius: 20px; padding: 30px 5px; box-shadow: 8px 8px 16px #e6e4df, -8px -8px 16px #ffffff; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .chart-box { text-align: center; width: 45%; transition: width 0.3s ease; }
     .chart-box p { font-size: 16px; font-weight: 900; color: #222; margin-bottom: 20px; letter-spacing: -0.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
     .circle-wrap { position: relative; display: inline-flex; justify-content: center; align-items: center; width: 104px; height: 104px; border-radius: 50%; background: #FDFCF8; box-shadow: 5px 5px 10px #e0ded9, -5px -5px 10px #ffffff; }
@@ -348,6 +329,13 @@
     document.getElementById('cal-days').innerHTML = h;
   }
 
+  // ★ 학년 추출 함수
+  function extractGrade(name) {
+      if (!name) return null;
+      var m = String(name).toUpperCase().trim().match(/(\d)[A-Z]/) || String(name).toUpperCase().trim().match(/ALL-(\d)/);
+      return m ? m[1] : null;
+  }
+
   function openDailyDashboard(d) {
     selectedDateStr = d; showPage('main-screen');
     document.getElementById('dash-date-msg').innerText = d;
@@ -361,49 +349,57 @@
     }
 
     var hasCurri2 = (myStudent.book4 && myStudent.book4.trim() !== "");
+    var hasCalc1  = (myStudent.book2 && myStudent.book2.trim() !== "");
     var hasCalc2  = (myStudent.book3 && myStudent.book3.trim() !== "");
+
+    var g2 = extractGrade(myStudent.book2);
+    var g3 = extractGrade(myStudent.book3);
+    
+    // ★ 핵심: 두 연산 교재의 학년이 다르면 분리해서 보여줌!
+    var isDifferentCalcGrade = (hasCalc1 && hasCalc2 && g2 !== g3);
 
     document.getElementById('btn-tab-curri2').style.display = hasCurri2 ? 'block' : 'none';
     document.getElementById('box-curri2').style.display    = hasCurri2 ? 'inline-block' : 'none';
     document.getElementById('btn-tab-calc2').style.display = hasCalc2 ? 'block' : 'none';
     
-    // ⭐ 연산2 그래프 원은 숨기고, 합산된 1개의 원만 사용
-    document.getElementById('box-calc2').style.display     = 'none';
+    // 다른 학년의 연산을 선행 중이면 연산 원형 그래프를 2개로 나눔
+    document.getElementById('box-calc').style.display = (hasCalc1 || hasCalc2) ? 'inline-block' : 'none';
+    document.getElementById('box-calc2').style.display = isDifferentCalcGrade ? 'inline-block' : 'none';
 
-    document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과1' : '📘 교과';
-    document.getElementById('tab-name-calc1').innerText = hasCalc2 ? '연산1' : '연산진도';
-    
-    // ⭐ 교재명 맨 앞자리 숫자를 추출하여 'O학년연산'으로 이름 변경
-    var calcGradeName = "연산";
-    if (myStudent.book2 && myStudent.book2.trim() !== "") {
-      var m = myStudent.book2.trim().match(/(\d)[A-Z]/) || myStudent.book2.trim().match(/ALL-(\d)/);
-      if(m) calcGradeName = m[1] + "학년 연산";
-      else {
-          var firstChar = myStudent.book2.trim().charAt(0);
-          if (!isNaN(firstChar) && firstChar !== " ") calcGradeName = firstChar + "학년연산";
-      }
-    }
-    document.getElementById('label-calc1').innerText = '📙 ' + calcGradeName;
-
-    // ⭐ 화면에 보여지는 그래프 개수에 맞춰 비율 자동 조정
-    var visibleCount = 2 + (hasCurri2 ? 1 : 0);
+    // 화면에 보여지는 그래프 개수에 맞춰 비율 자동 조정
+    var visibleCount = 1 + (hasCurri2 ? 1 : 0) + ((hasCalc1 || hasCalc2) && !isDifferentCalcGrade ? 1 : (isDifferentCalcGrade ? 2 : 0));
+    if(visibleCount === 0) visibleCount = 1;
     var w = visibleCount >= 3 ? '30%' : '45%';
+    if(visibleCount >= 4) w = '23%';
+    
     document.getElementById('box-curri').style.width  = w;
     document.getElementById('box-curri2').style.width = w;
     document.getElementById('box-calc').style.width   = w;
+    document.getElementById('box-calc2').style.width  = w;
 
-    // ⭐ 앱 내 원터치 교재 변경을 위해 bookColIdx(학생정보 시트의 열 번호)를 함께 전달
+    document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과 1' : '📘 교과';
+    
+    // 연산 그래프 이름 자동 지정 (학년 분리 처리)
+    if (isDifferentCalcGrade) {
+        document.getElementById('label-calc1').innerText = g2 ? '📙 ' + g2 + '학년 연산' : '📙 연산 1';
+        document.querySelector('#box-calc2 p').innerText = g3 ? '📗 ' + g3 + '학년 연산' : '📗 연산 2';
+    } else {
+        var combinedGrade = g2 || g3;
+        document.getElementById('label-calc1').innerText = combinedGrade ? '📙 ' + combinedGrade + '학년 연산' : '📙 연산';
+    }
+
     renderTab('tab-curriculum',  myStudent.book1, myStudent.baseProg1, globalToc1, hasCurri2 ? '📘 교과진도 1' : '📘 교과진도', 'book1', 4, myStudent.c1);
     renderTab('tab-curriculum2', myStudent.book4, myStudent.baseProg4, globalToc1, '📗 교과진도 2', 'book4', 9, myStudent.c4);
     renderTab('tab-calculation',  myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '📙 연산진도 1' : '📙 연산진도', 'book2', 5, myStudent.c2);
     renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '📗 연산진도 2', 'book3', 10, myStudent.c3);
+    
     if (!hasCurri2) document.getElementById('tab-curriculum2').innerHTML = "";
     if (!hasCalc2)  document.getElementById('tab-calculation2').innerHTML = "";
     
     renderReport(r.notice, r.photo, 'tab-notice', '수학 학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
     
-    updateProgressCircles(); switchTab('tab-overview');
+    updateProgressCircles(isDifferentCalcGrade, g2, g3); switchTab('tab-overview');
   }
 
   // ★ 신규: 교재 변경 모달창 띄우기
@@ -417,6 +413,7 @@
             <h3 style="margin-top:0; color:#2D5A27; text-align:center;">🔄 ${bookKey.includes('book1')||bookKey.includes('book4')?'교과':'연산'} 교재 변경</h3>
             <p style="font-size:13px; color:#E53935; text-align:center; font-weight:bold;">※ 주의: 교재 변경 시 해당 칸의 기존 진도는 리셋됩니다.</p>
             <select id="new-book-select" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #2D5A27; font-size:16px; font-weight:bold; color:#333;">
+                <option value="">-- 교재 선택 --</option>
                 ${options}
             </select>
             <div style="display:flex; gap:10px;">
@@ -434,7 +431,7 @@
     document.getElementById('book-modal').remove();
     
     if (newBook === myStudent[bookKey]) return;
-    if (!confirm(`정말 '${newBook}'(으)로 변경하시겠습니까?`)) return;
+    if (!confirm(`정말 교재를 변경하시겠습니까?`)) return;
     
     document.getElementById('dash-date-msg').innerText = "⏳ 3초 교체 중...";
     const res = await callGoogleScript("changeWorkbook", myStudent.id, bookColIdx, newBook, progColIdx);
@@ -458,7 +455,7 @@
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
-  // ★ 수학 리포트 (AI 다듬기 삭제 완료)
+  // ★ 수학 리포트
   function renderReport(nt, ph, cid, title, reaction) {
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
@@ -491,7 +488,7 @@
     } document.getElementById(cid).innerHTML = h + '</div>';
   }
 
-  // ★ 책나무 리포트 (AI 다듬기 삭제 완료)
+  // ★ 책나무 리포트
   function renderBookTree(nt, ph, reaction) {
     var h = '<div class="board-container"><div class="board-title">책나무 국어논술 리포트</div>';
     if(!myStudent.isBT) { h += '<p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p>'; }
@@ -527,7 +524,6 @@
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
   }
 
-  // ★ 사진 전체 삭제
   function deletePhoto(type) {
     if(!confirm("해당 리포트의 사진을 모두 삭제하시겠습니까?")) return;
     if(type === 'R') currentDailyPhoto = ""; else currentBTPhoto = "";
@@ -541,14 +537,12 @@
     var grade = gradeMatch ? gradeMatch[1] : "";
     
     if (grade === "4") {
-      // 4학년 특별 규칙
       if (name.includes("ALL-4A")) return 0;
       if (name === "4A") return 1;
       if (name.includes("ALL-4B")) return 2;
       if (name === "4B") return 3;
       if (name === "4C") return 4;
     } else {
-      // 일반 알파벳 규칙 (A~E)
       var m = name.match(/\d([A-Z])/);
       if (m) {
         var l = m[1];
@@ -575,11 +569,14 @@
     else if(cid === 'tab-calculation') myStudent.baseProg2[idx] = nxt;
     else if(cid === 'tab-calculation2') myStudent.baseProg3[idx] = nxt;
     
-    updateProgressCircles();
+    var g2 = extractGrade(myStudent.book2);
+    var g3 = extractGrade(myStudent.book3);
+    var isDiff = (myStudent.book2 && myStudent.book3 && g2 !== g3);
+    
+    updateProgressCircles(isDiff, g2, g3);
     await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3, myStudent.c1, myStudent.c2, myStudent.c3, myStudent.baseProg4, myStudent.c4);
   }
 
-  // ★ 사진 여러장 처리
   async function handleImg(e, type) {
     var files = e.target.files; 
     if (!files || files.length === 0) return;
@@ -656,8 +653,8 @@
     }
   }
 
-  // ★ 스마트 자동 맞춤형: 학년별 교재 개수를 자동으로 파악하여 성취율을 계산합니다.
-  function updateProgressCircles() {
+  // ★ 스마트 자동 맞춤형 & 학년 분리 병합 성취율 로직
+  function updateProgressCircles(isDifferentCalcGrade, g2, g3) {
     var bp1 = myStudent.baseProg1 || []; var bp2 = myStudent.baseProg2 || [];
     var bp3 = myStudent.baseProg3 || []; var bp4 = myStudent.baseProg4 || [];
     var t1 = (myStudent.book1 && globalToc1[myStudent.book1]) ? globalToc1[myStudent.book1].length : 0;
@@ -670,63 +667,68 @@
       document.getElementById(barId).style.strokeDashoffset = (p==='미등록' ? 226.2 : 226.2 - (226.2 * p / 100));
     }
     
-    // 교과 진도율
     var curri1Pct = t1 === 0 ? '미등록' : Math.min(100, Math.round((bp1.slice(0, t1).filter(x => x==='done').length / t1) * 100));
     var curri2Pct = t4 === 0 ? '미등록' : Math.min(100, Math.round((bp4.slice(0, t4).filter(x => x==='done').length / t4) * 100));
     setCircle('curri-val', 'curri-bar', curri1Pct);
     setCircle('curri2-val', 'curri2-bar', curri2Pct);
     
-    // 연산 진도율 누적 계산 로직 (스마트 자동 맞춤형)
-    function extractGrade(name) {
-        if (!name) return null;
-        var m = String(name).toUpperCase().trim().match(/(\d)[A-Z]/) || String(name).toUpperCase().trim().match(/ALL-(\d)/);
-        return m ? m[1] : null;
-    }
-    
-    var currentGrade = extractGrade(myStudent.book2) || extractGrade(myStudent.book3);
-    var totalBooksInGrade = 5; 
-    
-    if (currentGrade) {
-        var booksOfGrade = Object.keys(globalToc2).filter(function(k) {
-            return extractGrade(k) === currentGrade;
-        });
-        if (booksOfGrade.length > 0) {
-            totalBooksInGrade = booksOfGrade.length; 
+    function calculateSingleGradePct(bookName, bp, t, grade) {
+        if (!bookName || t === 0) return '미등록';
+        var totalBooksInGrade = 5; 
+        if (grade) {
+            var booksOfGrade = Object.keys(globalToc2).filter(function(k) { return extractGrade(k) === grade; });
+            if (booksOfGrade.length > 0) totalBooksInGrade = booksOfGrade.length;
         }
+        var r = getMilestoneRank(bookName);
+        var currentScore = (bp.slice(0, t).filter(x => x==='done').length / t) * 100;
+        var totalScore = currentScore + (r * 100); 
+        return Math.min(100, Math.round(totalScore / totalBooksInGrade));
     }
 
-    var activeRanks = {};
-    var lowestRank = 999;
-    
-    if (t2 > 0 && myStudent.book2) {
-        var r = getMilestoneRank(myStudent.book2);
-        activeRanks[r] = (bp2.slice(0, t2).filter(x => x==='done').length / t2) * 100;
-        if (r < lowestRank) lowestRank = r;
-    }
-    
-    if (t3 > 0 && myStudent.book3) {
-        var r = getMilestoneRank(myStudent.book3);
-        activeRanks[r] = (bp3.slice(0, t3).filter(x => x==='done').length / t3) * 100;
-        if (r < lowestRank) lowestRank = r;
-    }
-    
-    var calcCombinedPct = '미등록';
-    if (lowestRank !== 999) {
-        var totalScore = 0;
-        for (var i = 0; i < totalBooksInGrade; i++) {
-            if (activeRanks[i] !== undefined) {
-                totalScore += activeRanks[i]; 
-            } else if (i < lowestRank) {
-                totalScore += 100; 
-            }
+    if (isDifferentCalcGrade) {
+        // ★ 선행학습 중: 두 학년이 다르면 따로따로 독립 계산하여 2개의 그래프에 각각 표시
+        var pct2 = calculateSingleGradePct(myStudent.book2, bp2, t2, g2);
+        var pct3 = calculateSingleGradePct(myStudent.book3, bp3, t3, g3);
+        setCircle('calc-val', 'calc-bar', pct2);
+        setCircle('calc2-val', 'calc2-bar', pct3);
+    } else {
+        // ★ 일반 상황: 학년이 같으면 두 교재의 경험치를 합산하여 1개의 그래프에 표시
+        var currentGrade = g2 || g3;
+        var totalBooksInGrade = 5; 
+        if (currentGrade) {
+            var booksOfGrade = Object.keys(globalToc2).filter(function(k) { return extractGrade(k) === currentGrade; });
+            if (booksOfGrade.length > 0) totalBooksInGrade = booksOfGrade.length; 
         }
-        calcCombinedPct = Math.min(100, Math.round(totalScore / totalBooksInGrade)); 
+
+        var activeRanks = {};
+        var lowestRank = 999;
+        
+        if (t2 > 0 && myStudent.book2) {
+            var r = getMilestoneRank(myStudent.book2);
+            activeRanks[r] = (bp2.slice(0, t2).filter(x => x==='done').length / t2) * 100;
+            if (r < lowestRank) lowestRank = r;
+        }
+        if (t3 > 0 && myStudent.book3) {
+            var r = getMilestoneRank(myStudent.book3);
+            activeRanks[r] = (bp3.slice(0, t3).filter(x => x==='done').length / t3) * 100;
+            if (r < lowestRank) lowestRank = r;
+        }
+        
+        var calcCombinedPct = '미등록';
+        if (lowestRank !== 999) {
+            var totalScore = 0;
+            for (var i = 0; i < totalBooksInGrade; i++) {
+                if (activeRanks[i] !== undefined) totalScore += activeRanks[i]; 
+                else if (i < lowestRank) totalScore += 100; 
+            }
+            calcCombinedPct = Math.min(100, Math.round(totalScore / totalBooksInGrade)); 
+        }
+        
+        setCircle('calc-val', 'calc-bar', calcCombinedPct);
+        setCircle('calc2-val', 'calc2-bar', '미등록'); // 보이지 않지만 초기화
     }
-    
-    setCircle('calc-val', 'calc-bar', calcCombinedPct);
   }
 
-  // ★ 개별/일괄 문자 발송 및 이모지 기능
   function sendSingleSMS(type) {
     if(!myStudent.phone) return alert("연락처가 없습니다.");
     var APP_LINK = "https://captainq337.github.io/math-app/?v=success"; 
