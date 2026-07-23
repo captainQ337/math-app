@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>책나무최강</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="책나무최강">
   <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1g-S1lNyNJZ_zJcILyrRp9Q08Y8eua4SA&sz=512">
+  
   <style>
     :root { --primary-color: #2D5A27; --accent-color: #4CAF50; --bg-cream: #FDFCF8; --text-dark: #1A1A1A; --status-done: #800080; --status-ing: #2D5A27; --status-need: #FFB300; }
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #F0F2F5; color: var(--text-dark); margin: 0; padding: 0; display: flex; justify-content: center; }
@@ -20,48 +25,81 @@
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #EEE;}
     .btn-back { background: #EEE; color: #555; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     
-    /* 달력 & 공지 */
+    /* 달력 */
     .cal-container { background: white; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .cal-btn { background: transparent; border: none; font-size: 20px; color: #888; cursor: pointer; padding: 5px 10px; font-weight: bold; }
-    .cal-month { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #222; }
+    .cal-btn { background: transparent; border: none; font-size: 20px; color: #888; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.15s; }
+    .cal-btn:active { transform: scale(0.85); color: #333; }
+    .cal-month { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #222; letter-spacing: -0.5px; }
     .cal-header-row { display: grid; grid-template-columns: repeat(7, 1fr); background-color: #EBEBEB; border-radius: 8px; padding: 4px 0; margin-bottom: 6px; }
     .cal-day-name { font-size: 11px; font-weight: 700; text-align: center; }
     .cal-day-name.sun { color: #E53935; }
+    .cal-day-name.mon, .cal-day-name.tue, .cal-day-name.wed, .cal-day-name.thu, .cal-day-name.fri { color: #555555; }
     .cal-day-name.sat { color: #1E88E5; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .cal-day { aspect-ratio: 1 / 0.85; background: #FFF; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 5px; position: relative; cursor: pointer; border-radius: 6px; }
+    .cal-day { aspect-ratio: 1 / 0.85; background: #FFF; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 5px; position: relative; cursor: pointer; transition: all 0.1s ease; border-radius: 6px; }
+    .cal-day:hover { background-color: #F8F9FA; }
+    .cal-day:active { transform: scale(0.92); background-color: #F3F4F6; box-shadow: inset 2px 2px 6px rgba(0,0,0,0.08); z-index: 10; }
+    .cal-day.empty { background: transparent; cursor: default; }
     .cal-day.today { background-color: #F0FDF4; border: 2px solid var(--accent-color) !important; z-index: 5; }
     .day-num { font-size: 13px; font-weight: 600; color: #444; }
     .cal-day.holiday .day-num { color: #E53935; }
     .cal-day.saturday .day-num { color: #1E88E5; }
-    .record-dot { width: 6px; height: 6px; background: var(--status-done); border-radius: 50%; margin-top: 4px; }
-    .holiday-text { font-size: 8px; color: #E53935; font-weight: 700; width: 100%; text-align: center; margin-top: 1px; }
+    .record-dot { width: 6px; height: 6px; background: var(--status-done); border-radius: 50%; margin-top: 4px; box-shadow: 0 2px 4px rgba(128,0,128,0.2); }
+    .holiday-text { font-size: 8px; color: #E53935; font-weight: 700; width: 100%; text-align: center; margin-top: 1px; line-height: 1.1; letter-spacing: -0.5px; }
     .parent-notif { position: absolute; top: 4px; right: 6px; font-size: 12px; color: red; }
-    .global-notice-box { margin-top: 16px; background: #FFFBF0; border: 2px solid #FFB300; border-radius: 16px; padding: 20px; }
-    .global-notice-box .notice-label { font-size: 15px; font-weight: 900; color: #E65100; margin-bottom: 12px; border-bottom: 1.5px dashed #FFD580; padding-bottom:10px; }
-    
-    /* 탭 & 프로그레스 */
-    .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; margin-bottom: 25px; padding: 6px; }
-    .tab-btn { flex: 1; padding: 12px 0; background: transparent; border: none; font-size: 14.5px; cursor: pointer; font-weight: 800; border-radius: 10px; }
-    .tab-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--primary-color)); color: white; transform: translateY(-2px); }
+
+    /* ★ 전체 공지 박스 (달력 하단) */
+    .global-notice-box {
+      margin-top: 16px;
+      background: #FFFBF0;
+      border: 2px solid #FFB300;
+      border-radius: 16px;
+      padding: 20px 20px 22px;
+      box-shadow: 0 4px 14px rgba(255,179,0,0.15);
+    }
+    .global-notice-box .notice-label {
+      font-size: 15px;
+      font-weight: 900;
+      color: #E65100;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px dashed #FFD580;
+    }
+    .global-notice-box .notice-text {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #333;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    /* 탭 */
+    .tabs { display: flex; background-color: #E8ECE8; border-radius: 14px; overflow: visible; margin-bottom: 25px; padding: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); }
+    .tab-btn { flex: 1; padding: 12px 0; background: transparent; border: none; font-size: 14.5px; cursor: pointer; color: #333; font-weight: 800; border-radius: 10px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); letter-spacing: -0.5px; white-space: nowrap; }
+    .tab-btn.active { background: linear-gradient(135deg, var(--accent-color), var(--primary-color)); color: white; box-shadow: 0 4px 8px rgba(45, 90, 39, 0.35), 0 1px 3px rgba(0,0,0,0.1); transform: translateY(-2px); }
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+    
     .progress-overview { display: flex; justify-content: space-around; background: #FDFCF8; border-radius: 20px; padding: 30px 5px; box-shadow: 8px 8px 16px #e6e4df, -8px -8px 16px #ffffff; margin-bottom: 20px; }
-    .chart-box { text-align: center; width: 45%; }
-    .chart-box p { font-size: 15px; font-weight: 900; color: #222; margin-bottom: 15px; }
+    .chart-box { text-align: center; width: 45%; transition: width 0.3s ease; }
+    .chart-box p { font-size: 16px; font-weight: 900; color: #222; margin-bottom: 20px; letter-spacing: -0.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
     .circle-wrap { position: relative; display: inline-flex; justify-content: center; align-items: center; width: 104px; height: 104px; border-radius: 50%; background: #FDFCF8; box-shadow: 5px 5px 10px #e0ded9, -5px -5px 10px #ffffff; }
     .circle-svg { position: absolute; width: 84px; height: 84px; transform: rotate(-90deg); }
     .circle-bg { fill: none; stroke: #EAE8E3; stroke-width: 8; }
-    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s; }
+    .circle-bar { fill: none; stroke: var(--accent-color); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.8, 0.25, 1); filter: drop-shadow(0px 2px 4px rgba(76,175,80,0.5)); }
     .chart-value { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 800; color: #222; z-index: 2; }
+    
     .board-container { border: 1.5px solid var(--primary-color); padding: 15px; border-radius: 12px; background: white; margin-bottom: 20px; }
     .board-title { text-align: center; font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #EEE; }
     .progress-item { display: flex; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #F5F5F5; align-items: center; font-size: 14px; }
     .status-box { width: 32px; height: 32px; cursor: pointer; border: 1.5px solid #DDD; border-radius: 6px; }
-    .legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 11px; background: #F8F9FA; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
+    .legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 11px; text-align: left; background: #F8F9FA; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-weight: 500;}
-    .l-box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #CCC; }
+    .l-box { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #CCC; flex-shrink: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
@@ -69,9 +107,9 @@
 <div class="app-container">
   <div class="header">
     <img src="https://drive.google.com/thumbnail?id=1Gs87f_QQpFECfVPSu60cjufuW2WH-op2&sz=800&v=1" alt="로고">
+    <h1 id="academyNameDisplay" style="display:none;">책나무최강수학</h1>
   </div>
 
-  <!-- 로그인 화면 -->
   <div id="login-screen">
     <div style="text-align:center; margin-bottom:30px;">
       <h2 style="font-weight:700; color:var(--primary-color);">PREMIUM SYSTEM</h2>
@@ -82,52 +120,56 @@
     <p id="login-msg" style="text-align:center; font-size:13px; margin-top:20px;"></p>
   </div>
 
-  <!-- 관리자 화면 -->
   <div id="admin-screen" class="hidden">
     <h3 style="margin:0 0 15px 0; color:var(--primary-color);">👨‍🏫 원장님 매니저</h3>
+
     <div style="margin-bottom:20px;">
-      <button onclick="toggleNoticePanel()" id="btn-notice-toggle" style="width:100%; padding:14px 18px; background:#FFFBF0; color:#E65100; border:1.5px solid #FFB300; border-radius:12px; font-size:15px; font-weight:800; cursor:pointer; display:flex; justify-content:space-between;">
-        <span>📢 전체 공지 쓰기</span><span id="notice-arrow">▼</span>
+      <button onclick="toggleNoticePanel()" id="btn-notice-toggle"
+        style="width:100%; padding:14px 18px; background:#FFFBF0; color:#E65100; border:1.5px solid #FFB300; border-radius:12px; font-size:15px; font-weight:800; cursor:pointer; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box;">
+        <span>📢 전체 공지 쓰기</span>
+        <span id="notice-arrow" style="font-size:13px; transition:transform 0.25s;">▼</span>
       </button>
-      <div id="notice-panel" style="display:none; border:1.5px solid #FFB300; border-top:none; border-radius:0 0 12px 12px; background:#FFFBF0; padding:14px;">
-        <textarea id="admin-notice-input" rows="4" placeholder="모든 학생의 달력 하단에 표시됩니다."></textarea>
+      <div id="notice-panel" style="display:none; border:1.5px solid #FFB300; border-top:none; border-radius:0 0 12px 12px; background:#FFFBF0; padding:14px; box-sizing:border-box;">
+        <textarea id="admin-notice-input" rows="4" placeholder="홍보글, 공지사항 등을 입력하세요. 모든 학생의 달력 하단에 표시됩니다." style="margin-bottom:8px;"></textarea>
         <button class="btn-main" style="background-color:#E65100;" onclick="saveGlobalNotice()">공지 저장하기</button>
       </div>
     </div>
-    <button class="btn-bulk" onclick="startBulkSMS('MATH')">📢 수학 일괄 문자</button>
-    <button class="btn-bulk" style="background-color: var(--accent-color); margin-bottom: 20px;" onclick="startBulkSMS('BT')">📢 책나무 일괄 문자</button>
+
+    <button class="btn-bulk" onclick="startBulkSMS('MATH')">📢 최강수학 보호자 일괄 문자 보내기</button>
+    <button class="btn-bulk" style="background-color: var(--accent-color); margin-bottom: 20px;" onclick="startBulkSMS('BT')">📢 책나무 보호자 일괄 문자 보내기</button>
     <div id="student-list"></div>
   </div>
 
-  <!-- 달력 화면 -->
   <div id="calendar-screen" class="hidden">
     <div class="top-bar">
       <h2 id="cal-welcome-msg" style="font-size:18px; font-weight:700; margin:0;"></h2>
       <button id="btn-back-to-list" class="btn-back hidden" onclick="goBackToList()">목록으로</button>
     </div>
+    
     <div class="cal-container">
       <div class="cal-header">
         <button class="cal-btn" onclick="changeMonth(-1)">◀</button>
-        <div id="cal-month-text" class="cal-month"></div>
+        <div id="cal-month-text" class="cal-month">2026. 05</div>
         <button class="cal-btn" onclick="changeMonth(1)">▶</button>
       </div>
       <div class="cal-header-row">
-        <div class="cal-day-name sun">일</div><div class="cal-day-name">월</div><div class="cal-day-name">화</div><div class="cal-day-name">수</div><div class="cal-day-name">목</div><div class="cal-day-name">금</div><div class="cal-day-name sat">토</div>
+        <div class="cal-day-name sun">일</div><div class="cal-day-name mon">월</div><div class="cal-day-name tue">화</div><div class="cal-day-name wed">수</div><div class="cal-day-name thu">목</div><div class="cal-day-name fri">금</div><div class="cal-day-name sat">토</div>
       </div>
       <div id="cal-days" class="cal-grid"></div>
     </div>
+
     <div id="global-notice-box" class="global-notice-box hidden">
-      <div class="notice-label">📢 학원 알림</div>
+      <div class="notice-label">📢 알림</div>
       <p id="global-notice-content" class="notice-text"></p>
     </div>
   </div>
 
-  <!-- 메인(상세) 화면 -->
   <div id="main-screen" class="hidden">
     <div class="top-bar">
       <h2 id="dash-date-msg" style="font-size:18px; font-weight:700; margin:0; color:var(--primary-color);"></h2>
-      <button class="btn-back" onclick="goBackToCalendar()">◀ 달력</button>
+      <button class="btn-back" onclick="goBackToCalendar()">◀ 달력으로</button>
     </div>
+    
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('tab-overview')">성취</button>
       <button class="tab-btn" onclick="switchTab('tab-curriculum')" id="tab-name-curri">교과</button>
@@ -161,6 +203,13 @@
             <div id="calc-val" class="chart-value">0%</div>
           </div>
         </div>
+        <div class="chart-box" id="box-calc2" style="display:none;">
+          <p>📗 연산2</p>
+          <div class="circle-wrap">
+            <svg class="circle-svg"><circle class="circle-bg" cx="42" cy="42" r="36"></circle><circle id="calc2-bar" class="circle-bar" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle></svg>
+            <div id="calc2-val" class="chart-value">0%</div>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -178,7 +227,12 @@
   var currentRole, myStudent, myHistory, todayStr, globalToc1, globalToc2;
   var currentCalYear = 2026, currentCalMonth = 5, selectedDateStr, currentDailyPhoto, currentBTPhoto;
   var colorMap = { 'none': '#FFFFFF', 'done': '#800080', 'ing': '#2D5A27', 'need': '#FFB300' };
-  var academyHolidays = ["2026-01-01","2026-05-05","2026-12-25"]; // 필요한 날짜 추가
+  
+  var academyHolidays = [
+    "2026-01-01", "2026-02-16", "2026-02-17", "2026-02-18", "2026-03-01", "2026-04-30",
+    "2026-05-05", "2026-05-25", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-17",
+    "2026-09-24", "2026-09-25", "2026-09-26", "2026-10-28", "2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31"
+  ];
 
   function showPage(pageId) {
     ['login-screen', 'admin-screen', 'calendar-screen', 'main-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -194,77 +248,101 @@
 
   async function doLogin() {
     const id = document.getElementById('studentId').value.trim().toUpperCase();
-    if(!id) return alert("번호를 입력해주세요.");
-    document.getElementById('login-msg').innerText = "로딩 중...";
+    const msg = document.getElementById('login-msg');
+    if(!id) return msg.innerText = "번호를 입력해주세요.";
+    msg.innerText = "로딩 중... (최초 1회만 시간이 소요됩니다)";
     const res = await callGoogleScript("authenticateAndGetData", id);
     if(res.success) {
       currentRole = res.role;
       if(res.role === 'admin') { window.adminStudentList = res.studentList; renderAdminList(); showPage('admin-screen'); }
       else { setStudentData(res); }
-    } else document.getElementById('login-msg').innerText = res.message;
+    } else { msg.innerText = res.message; }
   }
 
   function renderAdminList() {
-    let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px;">번호</th><th style="padding:10px; text-align:left;">이름</th><th style="padding:10px;">수학</th><th style="padding:10px;">책나무</th></tr></thead><tbody>';
+    let h = '<table style="width:100%; border-collapse:collapse; background:white; font-size:14px;"><thead><tr style="background:#f4f4f4;"><th style="padding:10px; text-align:center;">번호</th><th style="padding:10px; text-align:left; padding-left:15px;">이름</th><th style="padding:10px; text-align:center;">수학</th><th style="padding:10px; text-align:center;">책나무</th></tr></thead><tbody>';
     window.adminStudentList.forEach(stu => {
       const mathDisplay = stu.isMath ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
       const btDisplay = stu.isBT ? 'Y' + (stu.hasNew ? ' <span style="color:red; font-size:11px;">🔴</span>' : '') : '-';
-      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')"><td style="padding:12px; text-align:center;">${stu.id}</td><td style="padding:12px; font-weight:bold;">${stu.name}</td><td style="padding:12px; text-align:center; color:#2D5A27;">${mathDisplay}</td><td style="padding:12px; text-align:center; color:#e74c3c;">${btDisplay}</td></tr>`;
+      h += `<tr style="border-bottom:1px solid #eee;" onclick="fetchStudentData('${stu.id}')"><td style="padding:12px 10px; text-align:center;">${stu.id}</td><td style="padding:12px 10px; text-align:left; padding-left:15px;"><strong>${stu.name}</strong></td><td style="padding:12px 10px; text-align:center; color:#2D5A27; font-weight:bold;">${mathDisplay}</td><td style="padding:12px 10px; text-align:center; color:#e74c3c; font-weight:bold;">${btDisplay}</td></tr>`;
     });
     document.getElementById('student-list').innerHTML = h + '</tbody></table>';
   }
 
   async function fetchStudentData(id) {
-    document.getElementById('student-list').innerHTML = `<div style="padding:30px; text-align:center; color:#2D5A27; font-weight:bold;">⏳ 로딩 중...</div>`;
+    document.getElementById('student-list').innerHTML = `<div style="padding:30px; text-align:center; color:#2D5A27; font-weight:bold;">⏳ 데이터를 불러오는 중입니다...</div>`;
     const res = await callGoogleScript("authenticateAndGetData", id);
-    if (res.success) { setStudentData(res); document.getElementById('btn-back-to-list').classList.remove('hidden'); } 
-    else { alert("오류"); renderAdminList(); }
+    if (res.success) {
+      var fs = window.adminStudentList.find(x => x.id === id);
+      if(fs && res.student) res.student.phone = fs.phone;
+      setStudentData(res);
+      document.getElementById('btn-back-to-list').classList.remove('hidden');
+    } else { alert("오류 발생"); renderAdminList(); }
   }
 
   function setStudentData(res) {
     myStudent = res.student; myHistory = res.history; globalToc1 = res.toc1; globalToc2 = res.toc2; todayStr = res.today;
     var p = todayStr.split('-'); currentCalYear = parseInt(p[0]); currentCalMonth = parseInt(p[1]);
     document.getElementById('cal-welcome-msg').innerText = "🌿 " + myStudent.name + " 학습 기록";
-    renderCalendar(); loadGlobalNotice(); showPage('calendar-screen');
+    renderCalendar();
+    loadGlobalNotice(); 
+    showPage('calendar-screen');
   }
 
   async function loadGlobalNotice() {
     const res = await callGoogleScript("authenticateAndGetData", "GLOBAL");
     var box = document.getElementById('global-notice-box');
-    if (res.success && res.history["NOTICE"] && res.history["NOTICE"].notice) {
-      document.getElementById('global-notice-content').innerText = res.history["NOTICE"].notice;
+    var content = document.getElementById('global-notice-content');
+    if (res.success && res.history && res.history["NOTICE"] && res.history["NOTICE"].notice) {
+      content.innerText = res.history["NOTICE"].notice;
       box.classList.remove('hidden');
-    } else box.classList.add('hidden');
+    } else {
+      box.classList.add('hidden');
+    }
   }
 
   function toggleNoticePanel() {
-    var p = document.getElementById('notice-panel'), btn = document.getElementById('btn-notice-toggle');
-    p.style.display = p.style.display !== 'none' ? 'none' : 'block';
+    var panel = document.getElementById('notice-panel');
+    var arrow = document.getElementById('notice-arrow');
+    var btn   = document.getElementById('btn-notice-toggle');
+    var isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    btn.style.borderRadius = isOpen ? '12px' : '12px 12px 0 0';
   }
 
   async function saveGlobalNotice() {
     var nt = document.getElementById('admin-notice-input').value.trim();
-    if(!nt) return alert("입력해주세요.");
+    if (!nt) { alert("공지 내용을 입력해주세요."); return; }
     const res = await callGoogleScript("saveDailyReport", "GLOBAL", "NOTICE", nt, "", "", "");
-    if(res.success) { alert("저장 완료"); toggleNoticePanel(); }
+    if (res.success) { alert("✅ 전체 공지가 저장되었습니다!"); toggleNoticePanel(); }
+    else { alert("❌ 저장 실패: " + res.message); }
   }
 
   function renderCalendar() {
     document.getElementById('cal-month-text').innerText = currentCalYear + ". " + String(currentCalMonth).padStart(2,'0');
-    var f = new Date(currentCalYear, currentCalMonth-1, 1).getDay(), l = new Date(currentCalYear, currentCalMonth, 0).getDate();
+    var f = new Date(currentCalYear, currentCalMonth-1, 1).getDay();
+    var l = new Date(currentCalYear, currentCalMonth, 0).getDate();
     var h = '';
+    
     for(var i=0; i<f; i++) h += '<div class="cal-day empty"></div>';
+    
     for(var i=1; i<=l; i++) {
       var d = currentCalYear + "-" + String(currentCalMonth).padStart(2,'0') + "-" + String(i).padStart(2,'0');
       var dayOfWeek = new Date(currentCalYear, currentCalMonth-1, i).getDay();
+      var isSun = dayOfWeek === 0;
+      var isSat = dayOfWeek === 6;
+      var isHoliday = academyHolidays.includes(d);
+      
       var cn = "cal-day" + (d === todayStr ? " today" : "");
-      if (dayOfWeek === 0 || academyHolidays.includes(d)) cn += " holiday";
-      else if (dayOfWeek === 6) cn += " saturday";
+      if (isSun || isHoliday) cn += " holiday";
+      else if (isSat) cn += " saturday";
       
       var inner = `<div class="day-num">${i}</div>`;
-      if (academyHolidays.includes(d)) inner += `<div class="holiday-text">휴강</div>`;
+      if (isHoliday) inner += `<div class="holiday-text">휴강</div>`;
       if (myHistory[d] && (myHistory[d].notice || myHistory[d].btText)) inner += `<div class="record-dot"></div>`;
       if (myHistory[d] && myHistory[d].reaction) inner += `<span class="parent-notif">🔴</span>`;
+      
       h += `<div class="${cn}" onclick="openDailyDashboard('${d}')">${inner}</div>`;
     }
     document.getElementById('cal-days').innerHTML = h;
@@ -276,38 +354,59 @@
     var r = myHistory[d] || {notice:"", photo:"", btText:"", btPhoto:"", reaction:""};
     currentDailyPhoto = r.photo; currentBTPhoto = r.btPhoto;
     
-    if (currentRole === 'admin' && r.reaction) callGoogleScript("clearNotification", myStudent.id, d);
+    if (currentRole === 'admin' && r.reaction) {
+      callGoogleScript("clearNotification", myStudent.id, d);
+      var targetStu = window.adminStudentList.find(x => x.id === myStudent.id);
+      if (targetStu) targetStu.hasNew = false;
+    }
 
-    var hasCurri2 = !!myStudent.book4;
-    var hasCalc2  = !!myStudent.book3;
+    var hasCurri2 = (myStudent.book4 && myStudent.book4.trim() !== "");
+    var hasCalc2  = (myStudent.book3 && myStudent.book3.trim() !== "");
 
     document.getElementById('btn-tab-curri2').style.display = hasCurri2 ? 'block' : 'none';
-    document.getElementById('box-curri2').style.display = hasCurri2 ? 'inline-block' : 'none';
+    document.getElementById('box-curri2').style.display    = hasCurri2 ? 'inline-block' : 'none';
     document.getElementById('btn-tab-calc2').style.display = hasCalc2 ? 'block' : 'none';
+    
+    // ⭐ 연산2 그래프 원은 숨기고, 합산된 1개의 원만 사용
+    document.getElementById('box-calc2').style.display     = 'none';
 
-    var w = (hasCurri2 ? 3 : 2) >= 3 ? '30%' : '45%';
-    document.getElementById('box-curri').style.width = w; document.getElementById('box-curri2').style.width = w; document.getElementById('box-calc').style.width = w;
-
-    var calcGradeName = "연산 마스터";
-    if (myStudent.book2) {
+    document.getElementById('label-curri1').innerText = hasCurri2 ? '📘 교과1' : '📘 교과';
+    document.getElementById('tab-name-calc1').innerText = hasCalc2 ? '연산1' : '연산진도';
+    
+    // ⭐ 교재명 맨 앞자리 숫자를 추출하여 'O학년연산'으로 이름 변경
+    var calcGradeName = "연산";
+    if (myStudent.book2 && myStudent.book2.trim() !== "") {
       var m = myStudent.book2.trim().match(/(\d)[A-Z]/) || myStudent.book2.trim().match(/ALL-(\d)/);
       if(m) calcGradeName = m[1] + "학년 연산";
+      else {
+          var firstChar = myStudent.book2.trim().charAt(0);
+          if (!isNaN(firstChar) && firstChar !== " ") calcGradeName = firstChar + "학년연산";
+      }
     }
     document.getElementById('label-calc1').innerText = '📙 ' + calcGradeName;
 
-    // ★ 학생정보 시트의 고정 열 번호를 매개변수로 전달 (book1=4, book2=5, book3=10, book4=9)
-    renderTab('tab-curriculum', myStudent.book1, myStudent.baseProg1, globalToc1, hasCurri2 ? '📘 교과 1' : '📘 교과', 'book1', 4, myStudent.c1);
-    renderTab('tab-curriculum2', myStudent.book4, myStudent.baseProg4, globalToc1, '📗 교과 2', 'book4', 9, myStudent.c4);
-    renderTab('tab-calculation', myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '📙 연산 1' : '📙 연산', 'book2', 5, myStudent.c2);
-    renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '📗 연산 2', 'book3', 10, myStudent.c3);
+    // ⭐ 화면에 보여지는 그래프 개수에 맞춰 비율 자동 조정
+    var visibleCount = 2 + (hasCurri2 ? 1 : 0);
+    var w = visibleCount >= 3 ? '30%' : '45%';
+    document.getElementById('box-curri').style.width  = w;
+    document.getElementById('box-curri2').style.width = w;
+    document.getElementById('box-calc').style.width   = w;
+
+    // ⭐ 앱 내 원터치 교재 변경을 위해 bookColIdx(학생정보 시트의 열 번호)를 함께 전달
+    renderTab('tab-curriculum',  myStudent.book1, myStudent.baseProg1, globalToc1, hasCurri2 ? '📘 교과진도 1' : '📘 교과진도', 'book1', 4, myStudent.c1);
+    renderTab('tab-curriculum2', myStudent.book4, myStudent.baseProg4, globalToc1, '📗 교과진도 2', 'book4', 9, myStudent.c4);
+    renderTab('tab-calculation',  myStudent.book2, myStudent.baseProg2, globalToc2, hasCalc2 ? '📙 연산진도 1' : '📙 연산진도', 'book2', 5, myStudent.c2);
+    renderTab('tab-calculation2', myStudent.book3, myStudent.baseProg3, globalToc2, '📗 연산진도 2', 'book3', 10, myStudent.c3);
+    if (!hasCurri2) document.getElementById('tab-curriculum2').innerHTML = "";
+    if (!hasCalc2)  document.getElementById('tab-calculation2').innerHTML = "";
     
-    renderReport(r.notice, r.photo, 'tab-notice', '수학 리포트', r.reaction);
+    renderReport(r.notice, r.photo, 'tab-notice', '수학 학습 리포트', r.reaction);
     renderBookTree(r.btText, r.btPhoto, r.reaction);
     
     updateProgressCircles(); switchTab('tab-overview');
   }
 
-  // ★ 교재 변경 모달창 띄우기
+  // ★ 신규: 교재 변경 모달창 띄우기
   function promptChangeBook(bookKey, bookColIdx, progColIdx, tocMapName) {
     var tocMap = (tocMapName === 'globalToc1') ? globalToc1 : globalToc2;
     var currentBook = myStudent[bookKey];
@@ -329,7 +428,7 @@
     document.body.insertAdjacentHTML('beforeend', modalHtml);
   }
 
-  // ★ 교재 변경 실행 (GAS 연동)
+  // ★ 신규: 교재 변경 실행 (GAS 연동)
   async function executeChangeBook(bookKey, bookColIdx, progColIdx) {
     var newBook = document.getElementById('new-book-select').value;
     document.getElementById('book-modal').remove();
@@ -350,41 +449,89 @@
   }
 
   function renderTab(cid, bn, pa, tM, title, bookKey, bookColIdx, progColIdx) {
-    var changeBtn = currentRole === 'admin' ? `<button onclick="promptChangeBook('${bookKey}', ${bookColIdx}, ${progColIdx}, '${cid.includes('curriculum') ? 'globalToc1' : 'globalToc2'}')" style="float:right; font-size:12px; padding:6px 10px; background:#F0FDF4; color:#2D5A27; border:2px solid #4CAF50; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">🔄 원터치 교재변경</button>` : '';
-    
-    if (!bn || bn.trim() === "") { document.getElementById(cid).innerHTML = `<div class="board-container"><div class="board-title" style="text-align:left; display:flex; justify-content:space-between; align-items:center;"><span>${title}</span>${changeBtn}</div><p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목입니다.</p></div>`; return; }
+    var changeBtn = currentRole === 'admin' ? `<button onclick="promptChangeBook('${bookKey}', ${bookColIdx}, ${progColIdx}, '${cid.includes('curriculum') ? 'globalToc1' : 'globalToc2'}')" style="float:right; font-size:12px; padding:6px 10px; background:#F0FDF4; color:#2D5A27; border:2px solid #4CAF50; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">🔄 교재변경</button>` : '';
+
+    if (!bn || bn.trim() === "") { document.getElementById(cid).innerHTML = `<div class="board-container"><div class="board-title" style="text-align:left; display:flex; justify-content:space-between; align-items:center;"><span>${title}</span>${changeBtn}</div><p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p></div>`; return; }
     
     var ch = tM[bn]||[], h = `<div class="legend"><div class="legend-item"><div class="l-box"></div>학습 전</div><div class="legend-item"><div class="l-box" style="background:var(--status-done)"></div>잘 이해했어요</div><div class="legend-item"><div class="l-box" style="background:var(--status-ing)"></div>이해하는 중이에요</div><div class="legend-item"><div class="l-box" style="background:var(--status-need)"></div>시간이 필요해요</div></div><div class="board-container"><div class="board-title" style="text-align:left; display:flex; justify-content:space-between; align-items:center;"><span>${title} (${bn})</span>${changeBtn}</div>`;
     ch.forEach((c, idx) => { var st = pa[idx]; var stKey = (!st || st === 'null' || st === null) ? 'none' : st; h += '<div class="progress-item"><span>'+c+'</span><div class="status-box" style="background-color:'+colorMap[stKey]+'" onclick="toggleStatus('+idx+',this,\''+cid+'\')"></div></div>'; });
     document.getElementById(cid).innerHTML = h + '</div>';
   }
 
+  // ★ 수학 리포트 (AI 다듬기 삭제 완료)
   function renderReport(nt, ph, cid, title, reaction) {
     var h = '<div class="board-container"><div class="board-title">'+title+'</div>';
     if(currentRole === 'admin') {
       if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
-      h += '<textarea id="notice-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up1" style="display:none;" multiple onchange="handleImg(event,\'R\')"><button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 추가</button>';
-      if(ph) ph.split(',').forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+      h += '<textarea id="notice-input" style="height:100px" placeholder="리포트 내용을 입력하세요.">'+nt+'</textarea>';
+      
+      h += '<input type="file" id="f-up1" style="display:none;" multiple onchange="handleImg(event,\'R\')">'; 
+      
+      if(ph) {
+        var phArr = ph.split(',');
+        phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
+        
+        h += '<div style="display:flex; gap:10px; margin-top:10px;">';
+        h += '<button class="btn-outline" style="flex:1;" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 추가</button>';
+        h += '<button class="btn-outline" style="flex:1; color:#E53935; border-color:#E53935;" onclick="deletePhoto(\'R\')">🗑️ 전체 삭제</button>';
+        h += '</div>';
+      } else { 
+        h += '<button class="btn-outline" onclick="document.getElementById(\'f-up1\').click()">+ 📸 사진 첨부 (여러장 가능)</button>'; 
+      }
+      
       h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
+      h += '<button onclick="sendSingleSMS(\'MATH\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 수학 리포트 문자 보내기</button>';
     } else {
-      h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록 없음')+'</p>';
-      if(ph) ph.split(',').forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+      h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
+      if(ph) {
+        var phArr = ph.split(',');
+        phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+      }
+      h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
     } document.getElementById(cid).innerHTML = h + '</div>';
   }
 
+  // ★ 책나무 리포트 (AI 다듬기 삭제 완료)
   function renderBookTree(nt, ph, reaction) {
-    var h = '<div class="board-container"><div class="board-title">책나무 국어논술</div>';
-    if(!myStudent.isBT) h += '<p style="text-align:center; color:#888; padding:30px;">미수강 과목</p>';
+    var h = '<div class="board-container"><div class="board-title">책나무 국어논술 리포트</div>';
+    if(!myStudent.isBT) { h += '<p style="text-align:center; color:#888; padding:30px;">수강하지 않는 과목(미등록)입니다.</p>'; }
     else {
       if(currentRole === 'admin') {
-        h += '<textarea id="bt-input" style="height:100px">'+nt+'</textarea><input type="file" id="f-up2" style="display:none;" multiple onchange="handleImg(event,\'B\')"><button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 사진 추가</button>';
-        if(ph) ph.split(',').forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+        if(reaction) h += '<div style="margin-bottom:15px; padding:12px; background:#FFF3E0; border-radius:8px; font-weight:bold; color:#E65100; text-align:center;">💡 학부모 반응: <span style="font-size:24px; vertical-align:middle;">' + reaction + '</span></div>';
+        h += '<textarea id="bt-input" style="height:100px" placeholder="책나무 리포트 내용을 입력하세요.">'+nt+'</textarea>';
+        
+        h += '<input type="file" id="f-up2" style="display:none;" multiple onchange="handleImg(event,\'B\')">';
+        
+        if(ph) {
+          var phArr = ph.split(',');
+          phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px; border: 1px solid #ddd;">'; });
+          
+          h += '<div style="display:flex; gap:10px; margin-top:10px;">';
+          h += '<button class="btn-outline" style="flex:1;" onclick="document.getElementById(\'f-up2\').click()">+ 📸 사진 추가</button>';
+          h += '<button class="btn-outline" style="flex:1; color:#E53935; border-color:#E53935;" onclick="deletePhoto(\'B\')">🗑️ 전체 삭제</button>';
+          h += '</div>';
+        } else { 
+          h += '<button class="btn-outline" onclick="document.getElementById(\'f-up2\').click()">+ 📸 책나무 사진 첨부 (여러장 가능)</button>'; 
+        }
+        
         h += '<button class="btn-main" onclick="saveAllData()" style="margin-top:10px;">저장하기</button>';
+        h += '<button onclick="sendSingleSMS(\'BT\')" style="width:100%; padding:14px; background-color:#007AFF; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:15px;">📲 이 책나무 리포트 문자 보내기</button>';
       } else {
-        h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록 없음')+'</p>';
-        if(ph) ph.split(',').forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; margin-top:10px; border-radius:8px;">'; });
+        h += '<p style="white-space:pre-wrap; line-height:1.6;">'+(nt||'기록이 없습니다.')+'</p>';
+        if(ph) {
+          var phArr = ph.split(',');
+          phArr.forEach(function(url) { if(url.trim()) h += '<img src="'+url.trim()+'" style="width:100%; border-radius:8px;">'; });
+        }
+        h += '<div style="text-align:center; margin-top:30px; padding:15px; background:#f8f9fa; border-radius:12px;"><p style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;">이번 주 리포트를 확인하셨다면?</p><button onclick="sendReaction(\'👍\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">👍</button><button onclick="sendReaction(\'❤️\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">❤️</button><button onclick="sendReaction(\'🙏\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">🙏</button><button onclick="sendReaction(\'📞\')" style="font-size:28px; background:none; border:none; cursor:pointer; margin:0 5px;">📞</button></div>';
       }
     } document.getElementById('tab-booktree').innerHTML = h + '</div>';
+  }
+
+  // ★ 사진 전체 삭제
+  function deletePhoto(type) {
+    if(!confirm("해당 리포트의 사진을 모두 삭제하시겠습니까?")) return;
+    if(type === 'R') currentDailyPhoto = ""; else currentBTPhoto = "";
+    saveAllData(); setTimeout(() => openDailyDashboard(selectedDateStr), 500);
   }
 
   // ★ 5권 기준 학년 진도 마일스톤 순위 계산기
@@ -416,38 +563,97 @@
   async function toggleStatus(idx, el, cid) {
     if(currentRole !== 'admin') return;
     var cur = el.style.backgroundColor;
-    var nxt = (!cur || cur.includes('255, 255, 255')) ? 'done' : cur.includes('128, 0, 128') ? 'ing' : cur.includes('45, 90, 39') ? 'need' : 'done';
+    var nxt = (cur === '' || cur.includes('rgb(255, 255, 255)') || !cur) ? 'done'
+            : cur.includes('rgb(128, 0, 128)') ? 'ing'
+            : cur.includes('rgb(45, 90, 39)') ? 'need'
+            : cur.includes('rgb(255, 179, 0)') ? 'none'
+            : 'done';
     el.style.backgroundColor = colorMap[nxt];
-    if(cid === 'tab-curriculum') myStudent.baseProg1[idx] = nxt; else if(cid === 'tab-calculation') myStudent.baseProg2[idx] = nxt;
+    
+    if(cid === 'tab-curriculum')  myStudent.baseProg1[idx] = nxt;
+    else if(cid === 'tab-curriculum2') myStudent.baseProg4[idx] = nxt;
+    else if(cid === 'tab-calculation') myStudent.baseProg2[idx] = nxt;
+    else if(cid === 'tab-calculation2') myStudent.baseProg3[idx] = nxt;
+    
     updateProgressCircles();
     await callGoogleScript("saveMasterProgress", myStudent.id, myStudent.baseProg1, myStudent.baseProg2, myStudent.baseProg3, myStudent.c1, myStudent.c2, myStudent.c3, myStudent.baseProg4, myStudent.c4);
   }
 
+  // ★ 사진 여러장 처리
   async function handleImg(e, type) {
-    var files = e.target.files; if (!files || files.length === 0) return;
-    var r = new FileReader();
-    r.onload = function(ev) {
-      var img = new Image();
-      img.onload = async function() {
-        var canvas = document.createElement("canvas"), ctx = canvas.getContext("2d");
-        var max = 800, w = img.width, h = img.height;
-        if (w > h) { if (w > max) { h *= max / w; w = max; } } else { if (h > max) { w *= max / h; h = max; } }
-        canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
-        const res = await callGoogleScript("uploadImageToDrive", myStudent.id, canvas.toDataURL("image/jpeg", 0.7), files[0].name);
-        if(res.success) {
-          if (type === 'R') currentDailyPhoto = currentDailyPhoto ? currentDailyPhoto + ',' + res.url : res.url; 
-          else currentBTPhoto = currentBTPhoto ? currentBTPhoto + ',' + res.url : res.url;
-          saveAllData();
-        }
-      }; img.src = ev.target.result;
-    }; r.readAsDataURL(files[0]);
+    var files = e.target.files; 
+    if (!files || files.length === 0) return;
+    
+    var targetBtn = e.target.nextElementSibling;
+    var originalText = type === 'R' ? "+ 📸 사진 첨부 (여러장 가능)" : "+ 📸 책나무 사진 첨부 (여러장 가능)";
+    
+    if (targetBtn) { 
+      targetBtn.innerText = "⏳ 사진 " + files.length + "장 올리는 중..."; 
+      targetBtn.style.backgroundColor = "#E8ECE8"; 
+      targetBtn.disabled = true; 
+    }
+
+    const processSingleFile = (file) => {
+      return new Promise((resolve, reject) => {
+        var r = new FileReader();
+        r.onload = function(ev) {
+          var img = new Image();
+          img.onload = async function() {
+            var canvas = document.createElement("canvas"); var ctx = canvas.getContext("2d");
+            var maxW = 800, maxH = 800, width = img.width, height = img.height;
+            if (width > height) { if (width > maxW) { height *= maxW / width; width = maxW; } } 
+            else { if (height > maxH) { width *= maxH / height; height = maxH; } }
+            canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+            var dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            
+            try {
+              const res = await callGoogleScript("uploadImageToDrive", myStudent.id, dataUrl, file.name);
+              if(res.success) resolve(res.url); else reject(res.message);
+            } catch(err) { reject(err.message); }
+          }; 
+          img.src = ev.target.result;
+        }; 
+        r.readAsDataURL(file);
+      });
+    };
+
+    try {
+      var uploadedUrls = [];
+      for (var i = 0; i < files.length; i++) {
+        var url = await processSingleFile(files[i]);
+        uploadedUrls.push(url);
+      }
+      
+      var finalUrls = uploadedUrls.join(',');
+      
+      if (type === 'R') {
+        currentDailyPhoto = currentDailyPhoto ? currentDailyPhoto + ',' + finalUrls : finalUrls; 
+      } else {
+        currentBTPhoto = currentBTPhoto ? currentBTPhoto + ',' + finalUrls : finalUrls;
+      }
+      
+      await saveAllData();
+      
+      if (targetBtn) { targetBtn.innerText = "✅ 업로드 완료!"; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
+      setTimeout(() => openDailyDashboard(selectedDateStr), 500);
+      
+    } catch (err) {
+      alert("❌ 업로드 에러:\n" + err); 
+      if (targetBtn) { targetBtn.innerText = originalText; targetBtn.style.backgroundColor = "#FFF"; targetBtn.disabled = false; }
+    }
   }
 
   async function saveAllData() {
     var nt = document.getElementById('notice-input')?document.getElementById('notice-input').value:"";
     var bt = document.getElementById('bt-input')?document.getElementById('bt-input').value:"";
     const res = await callGoogleScript("saveDailyReport", myStudent.id, selectedDateStr, nt, currentDailyPhoto, bt, currentBTPhoto);
-    if (res.success) { alert("✅ 저장되었습니다!"); fetchStudentData(myStudent.id); }
+    if (res.success) {
+      alert("✅ 저장되었습니다!");
+      if(!myHistory[selectedDateStr]) myHistory[selectedDateStr] = {};
+      myHistory[selectedDateStr].notice = nt; myHistory[selectedDateStr].photo = currentDailyPhoto;
+      myHistory[selectedDateStr].btText = bt; myHistory[selectedDateStr].btPhoto = currentBTPhoto;
+      renderCalendar();
+    }
   }
 
   // ★ 스마트 자동 맞춤형: 학년별 교재 개수를 자동으로 파악하여 성취율을 계산합니다.
@@ -470,40 +676,34 @@
     setCircle('curri-val', 'curri-bar', curri1Pct);
     setCircle('curri2-val', 'curri2-bar', curri2Pct);
     
-    // ----------------------------------------------------
-    // ★ 연산 진도율 누적 계산 로직 (스마트 자동 맞춤형)
-    // ----------------------------------------------------
+    // 연산 진도율 누적 계산 로직 (스마트 자동 맞춤형)
     function extractGrade(name) {
         if (!name) return null;
         var m = String(name).toUpperCase().trim().match(/(\d)[A-Z]/) || String(name).toUpperCase().trim().match(/ALL-(\d)/);
         return m ? m[1] : null;
     }
     
-    // 현재 수강 중인 연산 교재의 '학년' 파악
     var currentGrade = extractGrade(myStudent.book2) || extractGrade(myStudent.book3);
-    var totalBooksInGrade = 5; // 혹시 몰라 설정해둔 기본값
+    var totalBooksInGrade = 5; 
     
     if (currentGrade) {
-        // 연산목차(globalToc2)에 등록된 전체 교재 중, 현재 학년과 숫자가 일치하는 교재의 총 개수를 찾아냅니다.
         var booksOfGrade = Object.keys(globalToc2).filter(function(k) {
             return extractGrade(k) === currentGrade;
         });
         if (booksOfGrade.length > 0) {
-            totalBooksInGrade = booksOfGrade.length; // 실제 교재 개수로 업데이트!
+            totalBooksInGrade = booksOfGrade.length; 
         }
     }
 
     var activeRanks = {};
     var lowestRank = 999;
     
-    // 연산1 기록 가져오기
     if (t2 > 0 && myStudent.book2) {
         var r = getMilestoneRank(myStudent.book2);
         activeRanks[r] = (bp2.slice(0, t2).filter(x => x==='done').length / t2) * 100;
         if (r < lowestRank) lowestRank = r;
     }
     
-    // 연산2 기록 가져오기
     if (t3 > 0 && myStudent.book3) {
         var r = getMilestoneRank(myStudent.book3);
         activeRanks[r] = (bp3.slice(0, t3).filter(x => x==='done').length / t3) * 100;
@@ -515,18 +715,43 @@
         var totalScore = 0;
         for (var i = 0; i < totalBooksInGrade; i++) {
             if (activeRanks[i] !== undefined) {
-                totalScore += activeRanks[i]; // 현재 풀고 있는 교재의 달성도 합산
+                totalScore += activeRanks[i]; 
             } else if (i < lowestRank) {
-                totalScore += 100; // 과거에 패스한 앞 단계 교재들은 100%로 자동 채점!
+                totalScore += 100; 
             }
         }
-        calcCombinedPct = Math.min(100, Math.round(totalScore / totalBooksInGrade)); // 엑셀에 있는 실제 교재 권수로 평균 산출
+        calcCombinedPct = Math.min(100, Math.round(totalScore / totalBooksInGrade)); 
     }
     
     setCircle('calc-val', 'calc-bar', calcCombinedPct);
   }
 
-  function startBulkSMS(type) {}
+  // ★ 개별/일괄 문자 발송 및 이모지 기능
+  function sendSingleSMS(type) {
+    if(!myStudent.phone) return alert("연락처가 없습니다.");
+    var APP_LINK = "https://captainq337.github.io/math-app/?v=success"; 
+    var msg = "🌿 책나무최강수학 알림\n" + myStudent.name + " 학생의 리포트를 확인해주세요\n회원번호: " + myStudent.id + "\n\n▶ 확인하기:\n" + APP_LINK;
+    window.location.href = "sms:" + myStudent.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg);
+  }
+
+  function startBulkSMS(type) {
+    var targets = window.adminStudentList.filter(s => s.phone && (type==='MATH'?(s.book1||s.book2||s.book3):s.isBT));
+    if(targets.length === 0) return alert("발송 대상이 없습니다.");
+    if(!confirm(targets.length + "명에게 문자를 보낼까요?")) return;
+    
+    var APP_LINK = "https://captainq337.github.io/math-app/?v=success";
+    
+    targets.forEach((s, i) => {
+    var msg = "🌿 책나무최강수학 알림\n" + s.name + " 학생의 리포트를 확인해주세요\n회원번호: " + s.id + "\n\n▶ 확인하기:\n" + APP_LINK;
+      setTimeout(() => window.location.href = "sms:" + s.phone.replace(/-/g, '') + (/(iPad|iPhone|iPod)/.test(navigator.userAgent) ? "&" : "?") + "body=" + encodeURIComponent(msg), i * 1500);
+    });
+  }
+
+  async function sendReaction(emoji) {
+    if (!myStudent) return; const res = await callGoogleScript("saveReaction", myStudent.id, emoji);
+    if (res.success) alert(emoji + " 반응이 원장님께 전달되었습니다!");
+  }
+
   function changeMonth(d) { currentCalMonth+=d; if(currentCalMonth>12){currentCalMonth=1;currentCalYear++}else if(currentCalMonth<1){currentCalMonth=12;currentCalYear--} renderCalendar(); }
   function goBackToCalendar() { showPage('calendar-screen'); }
   function goBackToList() { renderAdminList(); showPage('admin-screen'); }
